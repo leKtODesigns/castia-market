@@ -56,7 +56,7 @@
   </div>
 </header>
 
-<div id="boot-preloader" class="boot-preloader on" aria-hidden="false">
+<div id="boot-preloader" class="boot-preloader on" aria-hidden="false" role="status" aria-live="polite" aria-atomic="true">
   <div class="boot-card">
     <div class="boot-brand">
       <div class="logo-mark" aria-hidden="true">⚔</div>
@@ -68,31 +68,31 @@
   </div>
 </div>
 
-<div id="panel-backdrop" onclick="closePanel()"></div>
+<div id="panel-backdrop" onclick="closePanel()" aria-hidden="true"></div>
 
 <div id="app">
-<main>
-  <div class="rlsb" id="rlsb">⚠ Could not load data — check Supabase RLS allows anon SELECT on price_data.</div>
+  <main>
+    <div class="rlsb" id="rlsb">⚠ Could not load data — check Supabase RLS allows anon SELECT on price_data.</div>
 
-  <!-- Data saver notice -->
-  <div class="ds-banner" id="dsBanner">
-    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="3" width="11" height="8" rx="1.5"/><path d="M4 3V2a.5.5 0 0 1 .5-.5h4A.5.5 0 0 1 9 2v1"/><line x1="4" y1="6.5" x2="9" y2="6.5"/></svg>
-    Data saver is on — images are hidden to reduce bandwidth.
-    <button class="ds-banner-off" onclick="toggleDataSaver()">Turn off</button>
-  </div>
+    <!-- Data saver notice -->
+    <div class="ds-banner" id="dsBanner">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="3" width="11" height="8" rx="1.5"/><path d="M4 3V2a.5.5 0 0 1 .5-.5h4A.5.5 0 0 1 9 2v1"/><line x1="4" y1="6.5" x2="9" y2="6.5"/></svg>
+      Data saver is on — images are hidden to reduce bandwidth.
+      <button class="ds-banner-off" onclick="toggleDataSaver()">Turn off</button>
+    </div>
 
-  <div class="stats-bar">
-    <div class="sc"><div class="sl">Total items</div><div class="sv" id="sTot">—</div></div>
-    <div class="sc"><div class="sl">Categories</div><div class="sv" id="sCat">—</div></div>
-    <div class="sc"><div class="sl">Highest price</div><div class="sv a" id="sMax">—</div><div class="ss" id="sMaxN"></div></div>
-    <div class="sc"><div class="sl">Avg median</div><div class="sv a" id="sAvg">—</div></div>
-    <div class="sc"><div class="sl">Last updated</div><div class="sv" id="sUpd" style="font-size:14px">—</div></div>
-  </div>
+    <div class="stats-bar">
+      <div class="sc"><div class="sl">Total items</div><div class="sv" id="sTot">—</div></div>
+      <div class="sc"><div class="sl">Categories</div><div class="sv" id="sCat">—</div></div>
+      <div class="sc"><div class="sl">Highest price</div><div class="sv a" id="sMax">—</div><div class="ss" id="sMaxN"></div></div>
+      <div class="sc"><div class="sl">Avg median</div><div class="sv a" id="sAvg">—</div></div>
+      <div class="sc"><div class="sl">Last updated</div><div class="sv" id="sUpd" style="font-size:14px">—</div></div>
+    </div>
 
-  <div class="ctrl-row">
-    <div class="field">
-      <div class="fl">Search
-        <span class="kbwrap">
+    <div class="ctrl-row">
+      <div class="field">
+        <div class="fl">Search
+          <span class="kbwrap">
           <span class="kbd kbbtn">keybinds</span>
           <div class="kbtip">
             <div class="krow"><span class="kbd">/</span><span class="kdesc">Focus search</span></div>
@@ -103,114 +103,114 @@
             <div class="krow"><span class="kbd">Enter</span><span class="kdesc">Apply suggestion</span></div>
           </div>
         </span>
+        </div>
+        <div class="sw">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="4.5"/><line x1="9.5" y1="9.5" x2="13" y2="13"/></svg>
+          <input type="text" id="qEl" placeholder="Search items, Book: Fire Aspect, Prismatic..." autocomplete="off" spellcheck="false" aria-label="Search items"/>
+          <button class="xbtn" id="xBtn" onclick="clearQ()" title="Clear">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>
+          </button>
+          <div class="sugg" id="suggEl" role="listbox" aria-label="Search suggestions"></div>
+        </div>
       </div>
-      <div class="sw">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="4.5"/><line x1="9.5" y1="9.5" x2="13" y2="13"/></svg>
-        <input type="text" id="qEl" placeholder="Search items, Book: Fire Aspect, Prismatic..." autocomplete="off" spellcheck="false"/>
-        <button class="xbtn" id="xBtn" onclick="clearQ()" title="Clear">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>
+      <div class="field">
+        <div class="fl">Category</div>
+        <select id="catEl" aria-label="Category"><option value="">All categories</option></select>
+      </div>
+      <div class="field">
+        <div class="fl">Confidence</div>
+        <select id="confEl" aria-label="Confidence">
+          <option value="">Any</option>
+          <option value="high">■ High</option>
+          <option value="good">■ Good</option>
+          <option value="fair">■ Fair</option>
+          <option value="low">■ Low</option>
+          <option value="unreliable">■ Unreliable</option>
+        </select>
+      </div>
+      <div class="field">
+        <div class="fl">Tier (Prismatic)</div>
+        <select id="tierEl" aria-label="Tier">
+          <option value="">All tiers</option>
+          <option value="1">Tier 1</option>
+          <option value="2">Tier 2</option>
+          <option value="3">Tier 3</option>
+          <option value="0">No tier (non-Prismatic)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="ctrl-row2">
+      <div class="fchips" id="chips"></div>
+      <div class="spills">
+        <span style="font-size:11px;color:var(--text3);font-family:'Space Mono',monospace">Sort:</span>
+        <button class="spill on" id="sp-median"      onclick="setSort('median')">Price</button>
+        <button class="spill"    id="sp-samples"     onclick="setSort('samples')">Samples</button>
+        <button class="spill"    id="sp-displayName" onclick="setSort('displayName')">Name A–Z</button>
+        <button class="spill"    id="sp-confidence"  onclick="setSort('confidence')">Confidence</button>
+        <button class="spill on" id="sp-dir"         onclick="flipDir()">↓</button>
+      </div>
+    </div>
+
+    <div class="rbar">
+      <div class="ri" id="ri"></div>
+      <div class="rtog">
+        <button class="vbtn" id="favOnlyBtn" onclick="toggleFavOnly()" title="Show favorites only">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><polygon points="6,1 7.5,4.2 11,4.7 8.5,7.1 9.1,10.6 6,9 2.9,10.6 3.5,7.1 1,4.7 4.5,4.2"/></svg>
+          Favs
         </button>
-        <div class="sugg" id="suggEl"></div>
+        <button class="vbtn" id="cmpBtn" onclick="openCompare()" title="Compare selected items">
+          <svg width="13" height="12" viewBox="0 0 13 12" fill="none" stroke="currentColor" stroke-width="1.4"><line x1="1" y1="6" x2="12" y2="6"/><polyline points="9,3 12,6 9,9"/><polyline points="4,3 1,6 4,9" opacity=".5"/></svg>
+          Compare
+          <span class="vbadge off" id="cmpCount">0</span>
+        </button>
+        <button class="vbtn" id="dsBtn" onclick="toggleDataSaver()" title="Data saver — disable images">
+          <svg width="13" height="12" viewBox="0 0 13 12" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="2.5" width="11" height="8" rx="1.5"/><path d="M4 2.5V1.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v1"/><line x1="4" y1="6.5" x2="9" y2="6.5"/></svg>
+          Data saver
+        </button>
+      </div>
+      <div class="vtog">
+        <button class="vbtn on" id="vt" onclick="setView('table')" title="Table">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="1" width="11" height="3" rx="1"/><rect x="1" y="6" width="11" height="3" rx="1"/><rect x="1" y="11" width="11" height="1.5" rx=".75"/></svg>
+        </button>
+        <button class="vbtn" id="vc" onclick="setView('card')" title="Cards">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="1" width="4.5" height="4.5" rx="1"/><rect x="7.5" y="1" width="4.5" height="4.5" rx="1"/><rect x="1" y="7.5" width="4.5" height="4.5" rx="1"/><rect x="7.5" y="7.5" width="4.5" height="4.5" rx="1"/></svg>
+        </button>
       </div>
     </div>
-    <div class="field">
-      <div class="fl">Category</div>
-      <select id="catEl"><option value="">All categories</option></select>
-    </div>
-    <div class="field">
-      <div class="fl">Confidence</div>
-      <select id="confEl">
-        <option value="">Any</option>
-        <option value="high">■ High</option>
-        <option value="good">■ Good</option>
-        <option value="fair">■ Fair</option>
-        <option value="low">■ Low</option>
-        <option value="unreliable">■ Unreliable</option>
-      </select>
-    </div>
-    <div class="field">
-      <div class="fl">Tier (Prismatic)</div>
-      <select id="tierEl">
-        <option value="">All tiers</option>
-        <option value="1">Tier 1</option>
-        <option value="2">Tier 2</option>
-        <option value="3">Tier 3</option>
-        <option value="0">No tier (non-Prismatic)</option>
-      </select>
-    </div>
-  </div>
 
-  <div class="ctrl-row2">
-    <div class="fchips" id="chips"></div>
-    <div class="spills">
-      <span style="font-size:11px;color:var(--text3);font-family:'Space Mono',monospace">Sort:</span>
-      <button class="spill on" id="sp-median"      onclick="setSort('median')">Price</button>
-      <button class="spill"    id="sp-samples"     onclick="setSort('samples')">Samples</button>
-      <button class="spill"    id="sp-displayName" onclick="setSort('displayName')">Name A–Z</button>
-      <button class="spill"    id="sp-confidence"  onclick="setSort('confidence')">Confidence</button>
-      <button class="spill on" id="sp-dir"         onclick="flipDir()">↓</button>
+    <div id="tvw">
+      <div class="twrap">
+        <table>
+          <thead><tr>
+            <th onclick="setSort('displayName')" id="th-displayName"><div class="ti">Item <span class="ar" id="ar-displayName"></span></div></th>
+            <th class="hsm hpanel"><div class="ti">Category</div></th>
+            <th onclick="setSort('median')" id="th-median" class="on"><div class="ti">Median <span class="ar" id="ar-median">↓</span></div></th>
+            <th class="hmd hpanel"><div class="ti">IQR Range</div></th>
+            <th onclick="setSort('confidence')" id="th-confidence" class="hsm hpanel"><div class="ti">Conf. <span class="ar" id="ar-confidence"></span></div></th>
+            <th onclick="setSort('trend')" id="th-trend" class="hmd hpanel"><div class="ti">Trend <span class="ar" id="ar-trend"></span></div></th>
+            <th onclick="setSort('samples')" id="th-samples"><div class="ti">Samples <span class="ar" id="ar-samples"></span></div></th>
+          </tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
     </div>
-  </div>
+    <div id="cvw" style="display:none"><div class="cgrid" id="cgrid"></div></div>
 
-  <div class="rbar">
-    <div class="ri" id="ri"></div>
-    <div class="rtog">
-      <button class="vbtn" id="favOnlyBtn" onclick="toggleFavOnly()" title="Show favorites only">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><polygon points="6,1 7.5,4.2 11,4.7 8.5,7.1 9.1,10.6 6,9 2.9,10.6 3.5,7.1 1,4.7 4.5,4.2"/></svg>
-        Favs
-      </button>
-      <button class="vbtn" id="cmpBtn" onclick="openCompare()" title="Compare selected items">
-        <svg width="13" height="12" viewBox="0 0 13 12" fill="none" stroke="currentColor" stroke-width="1.4"><line x1="1" y1="6" x2="12" y2="6"/><polyline points="9,3 12,6 9,9"/><polyline points="4,3 1,6 4,9" opacity=".5"/></svg>
-        Compare
-        <span class="vbadge off" id="cmpCount">0</span>
-      </button>
-      <button class="vbtn" id="dsBtn" onclick="toggleDataSaver()" title="Data saver — disable images">
-        <svg width="13" height="12" viewBox="0 0 13 12" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="2.5" width="11" height="8" rx="1.5"/><path d="M4 2.5V1.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v1"/><line x1="4" y1="6.5" x2="9" y2="6.5"/></svg>
-        Data saver
-      </button>
+    <div class="pag">
+      <span class="pmeta" id="pmeta"></span>
+      <div class="pbtns" id="pbtns"></div>
     </div>
-    <div class="vtog">
-      <button class="vbtn on" id="vt" onclick="setView('table')" title="Table">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="1" width="11" height="3" rx="1"/><rect x="1" y="6" width="11" height="3" rx="1"/><rect x="1" y="11" width="11" height="1.5" rx=".75"/></svg>
-      </button>
-      <button class="vbtn" id="vc" onclick="setView('card')" title="Cards">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="1" width="4.5" height="4.5" rx="1"/><rect x="7.5" y="1" width="4.5" height="4.5" rx="1"/><rect x="1" y="7.5" width="4.5" height="4.5" rx="1"/><rect x="7.5" y="7.5" width="4.5" height="4.5" rx="1"/></svg>
-      </button>
-    </div>
-  </div>
-
-  <div id="tvw">
-    <div class="twrap">
-      <table>
-        <thead><tr>
-          <th onclick="setSort('displayName')" id="th-displayName"><div class="ti">Item <span class="ar" id="ar-displayName"></span></div></th>
-          <th class="hsm hpanel"><div class="ti">Category</div></th>
-          <th onclick="setSort('median')" id="th-median" class="on"><div class="ti">Median <span class="ar" id="ar-median">↓</span></div></th>
-          <th class="hmd hpanel"><div class="ti">IQR Range</div></th>
-          <th onclick="setSort('confidence')" id="th-confidence" class="hsm hpanel"><div class="ti">Conf. <span class="ar" id="ar-confidence"></span></div></th>
-          <th onclick="setSort('trend')" id="th-trend" class="hmd hpanel"><div class="ti">Trend <span class="ar" id="ar-trend"></span></div></th>
-          <th onclick="setSort('samples')" id="th-samples"><div class="ti">Samples <span class="ar" id="ar-samples"></span></div></th>
-        </tr></thead>
-        <tbody id="tbody"></tbody>
-      </table>
-    </div>
-  </div>
-  <div id="cvw" style="display:none"><div class="cgrid" id="cgrid"></div></div>
-
-  <div class="pag">
-    <span class="pmeta" id="pmeta"></span>
-    <div class="pbtns" id="pbtns"></div>
-  </div>
-</main>
+  </main>
 </div>
 
 <!-- Detail Panel -->
-<div id="detail-panel">
+<div id="detail-panel" role="dialog" aria-modal="true" aria-label="Item details" aria-hidden="true" tabindex="-1">
   <div class="panel-drag"></div>
   <div class="panel-header">
     <div class="panel-top">
       <div class="panel-title" id="panel-title">—</div>
-      <button class="panel-close" onclick="closePanel()" title="Close">✕</button>
+      <button class="panel-close" id="panelCloseBtn" type="button" onclick="closePanel()" title="Close" aria-label="Close item details">✕</button>
     </div>
     <div id="panel-meta"></div>
   </div>
@@ -225,7 +225,7 @@
   Castia Market &mdash; auto-refreshes every 5 min
 </footer>
 
-<div id="toast"></div>
+<div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <!-- Scroll to top -->
 <button id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top" aria-label="Back to top">
@@ -235,15 +235,15 @@
 <!-- Compare modal -->
 <div class="cmp-modal" id="compareModal" aria-hidden="true">
   <div class="cmp-backdrop" onclick="closeCompare()"></div>
-  <div class="cmp-card" role="dialog" aria-modal="true" aria-label="Compare items">
+  <div class="cmp-card" role="dialog" aria-modal="true" aria-labelledby="compareTitle">
     <div class="cmp-top">
-      <div class="cmp-title">
+      <div class="cmp-title" id="compareTitle">
         <svg width="13" height="12" viewBox="0 0 13 12" fill="none" stroke="currentColor" stroke-width="1.4" style="margin-right:7px;vertical-align:-1px"><line x1="1" y1="6" x2="12" y2="6"/><polyline points="9,3 12,6 9,9"/><polyline points="4,3 1,6 4,9" opacity=".5"/></svg>
         Compare Items
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        <button class="hbtn" onclick="clearCompare()">Clear all</button>
-        <button class="panel-close" onclick="closeCompare()" title="Close">✕</button>
+        <button class="hbtn" type="button" onclick="clearCompare()">Clear all</button>
+        <button class="panel-close" id="cmpCloseBtn" type="button" onclick="closeCompare()" title="Close" aria-label="Close compare dialog">✕</button>
       </div>
     </div>
     <div class="cmp-body" id="cmpBody"></div>

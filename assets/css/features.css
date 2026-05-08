@@ -84,7 +84,9 @@ body.overlay-open #scrollTopBtn{
 .ctrl-row{animation:fadeUp .35s .05s ease both;}
 .ctrl-row2{animation:fadeUp .35s .08s ease both;}
 .rbar{animation:fadeUp .35s .10s ease both;}
-#tvw,#cvw{animation:fadeUp .35s .13s ease both;}
+/* NOTE: Keep this as "first-load only" — otherwise toggling table/card can re-run fadeUp and feel like a flicker. */
+body:not(.booted) #tvw,
+body:not(.booted) #cvw{animation:fadeUp .35s .13s ease both;}
 
 /* ── View switch crossfade ── */
 #tvw.view-entering,#cvw.view-entering{animation:viewFadeIn .22s cubic-bezier(.2,.8,.2,1) both;}

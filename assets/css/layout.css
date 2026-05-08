@@ -42,9 +42,9 @@ header{
 .boot-preloader{
   position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
   background:
-    radial-gradient(900px 500px at 30% 20%, rgba(237,184,74,0.06), transparent 60%),
-    radial-gradient(700px 420px at 70% 70%, rgba(91,163,245,0.06), transparent 60%),
-    rgba(11,13,18,0.92);
+          radial-gradient(900px 500px at 30% 20%, rgba(237,184,74,0.06), transparent 60%),
+          radial-gradient(700px 420px at 70% 70%, rgba(91,163,245,0.06), transparent 60%),
+          rgba(11,13,18,0.92);
   backdrop-filter:blur(14px);z-index:5000;opacity:0;pointer-events:none;transition:opacity .28s ease;
 }
 .boot-preloader.on{opacity:1;pointer-events:auto}
@@ -398,40 +398,40 @@ tbody tr:last-child td{border-bottom:none}
   }
   /* Item col: stack name + badges */
   .item-col .iname-wrap{
-  display:flex;
-  flex-direction:row;
-  align-items:center;
-  gap:6px;
-  min-width:0;
-  flex-wrap:nowrap;
-}
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    gap:6px;
+    min-width:0;
+    flex-wrap:nowrap;
+  }
   .item-col .iname-txt{
-  flex:1;
-  min-width:0;
+    flex:1;
+    min-width:0;
 
-  font-size:13px;
-  font-weight:600;
-  color:var(--text);
+    font-size:13px;
+    font-weight:600;
+    color:var(--text);
 
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
 
-  display:block;
-}
+    display:block;
+  }
   /* Move skill tag below item name */
   .item-col .stag{
-  font-size:9px;
-  padding:2px 5px;
+    font-size:9px;
+    padding:2px 5px;
 
-  flex-shrink:0;
+    flex-shrink:0;
 
-  order:unset;
-  align-self:center;
+    order:unset;
+    align-self:center;
 
-  position:relative;
-  left:0;
-}
+    position:relative;
+    left:0;
+  }
   /* Price shown via the 3rd td already contains .price-main */
   .price-main{font-size:12px}
   .price-range{display:none} /* hide IQR on mobile table */

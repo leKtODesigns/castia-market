@@ -202,6 +202,8 @@ async function fetchAll(silent) {
     allSellers = {};
     for (const s of sellerRows) { if (s.seller) allSellers[s.seller.toLowerCase()] = s; }
     lastLoaded = new Date();
+    // Avoid perceived “double load” (view fade + row stagger) on initial paint.
+    window.suppressNextStaggerAnim?.();
     buildCatFilter(); updateStats(); applyFilters(); updateSortUI();
     $('tvw').style.display = vw === 'table' ? '' : 'none';
     $('cvw').style.display = vw === 'card' ? '' : 'none';
@@ -276,6 +278,8 @@ async function buildPrismaticTiers(opts = {}) {
     newRows.push(byKey[r.rawKey] || byKey[r.key] || { key: r.rawKey, median: r.median, samples: r.samples, confidence: r.confidence, iqr_low: r.iqr_low, iqr_high: r.iqr_high, trend: r.trend, last_seen: r.last_seen });
   }
   allPrices = newRows; enriched = enrich(allPrices); maxSamples = Math.max(1, ...enriched.map(r => r.samples || 0));
+  // Background update: don't re-trigger stagger animations (can feel like a second reload).
+  window.suppressNextStaggerAnim?.();
   buildCatFilter(); updateStats(); applyFilters();
   if (Object.keys(tierRowsByBase).length) _writePrismaticCache(tierRowsByBase);
   if (!opts.silentToast) toast('Prismatic tiers ready');

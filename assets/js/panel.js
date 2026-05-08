@@ -9,6 +9,8 @@ function togglePanelSortSel() {
   const isOpen = el.classList.contains('open');
   closeAllCSelects(isOpen ? null : 'panelSortSel');
   el.classList.toggle('open', !isOpen);
+  const btn = el.querySelector('.cselect-btn');
+  if (btn) btn.setAttribute('aria-expanded', (!isOpen).toString());
 }
 
 // ── Panel swap animation ──
@@ -38,6 +40,14 @@ async function openPanel(key) {
   if (!item) { closePanel(); return; }
   panel.classList.add('open'); panelBackdrop.classList.add('on');
   if (!wasOpen) withCGridFlip(() => appShell.classList.add('panel-open'));
+  // Sync global overlay state (scroll lock, overlay-open class, etc.)
+  window.updateOverlayUI?.();
+  // Focus trap only on mobile (desktop should still allow selecting other cards while open).
+  const lock = (() => {
+    try { return window.matchMedia('(max-width: 600px), (pointer: coarse)').matches; }
+    catch (_e) { return window.innerWidth <= 600; }
+  })();
+  if (!wasOpen && lock) window.overlayFocusPush?.(panel, $('panelCloseBtn') || panel);
   const swap = () => {
     $('panel-title').innerHTML = `${esc(item.displayName)}${skillTagH(item.skillTag)}`;
     panelMeta.innerHTML = panelMetaHTML(item);
@@ -51,7 +61,7 @@ async function openPanel(key) {
     // Fade in skeleton on first open, consistent with subsequent opens
     const body = $('panel-body');
     if (body) body.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],
-      {duration:160,easing:'cubic-bezier(.2,.8,.2,1)'});
+        {duration:160,easing:'cubic-bezier(.2,.8,.2,1)'});
   }
   const listingsRaw = await fetchListings(key);
   if (activeKey !== key) return;
@@ -71,6 +81,8 @@ function closePanel() {
   markActiveSelection();
   setHashItemKey(null);
   scheduleSaveUIState();
+  window.updateOverlayUI?.();
+  window.overlayFocusPop?.(panel);
 }
 
 function panelSkeleton() {
@@ -139,9 +151,24 @@ function buildPanelTopSellersHTML(listings) {
 // ── Panel controls update ──
 function updatePanelControls() {
   const val = $('panelSortVal'); if (val) val.textContent = panelSortLabel();
-  const tog = $('panelFlagTog'); if (tog) tog.classList.toggle('on', !!panelIncludeFlagged);
+  const tog = $('panelFlagTog');
+  if (tog) {
+    tog.classList.toggle('on', !!panelIncludeFlagged);
+    tog.setAttribute('aria-checked', panelIncludeFlagged ? 'true' : 'false');
+  }
   const menu = $('panelSortMenu');
-  if (menu) menu.querySelectorAll('button[data-sort]').forEach(btn => btn.classList.toggle('on', btn.dataset.sort === panelSort));
+  if (menu) {
+    menu.querySelectorAll('button[data-sort]').forEach(btn => {
+      const on = btn.dataset.sort === panelSort;
+      btn.classList.toggle('on', on);
+      btn.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+  }
+  const sel = $('panelSortSel');
+  if (sel) {
+    const b = sel.querySelector('.cselect-btn');
+    if (b) b.setAttribute('aria-expanded', sel.classList.contains('open') ? 'true' : 'false');
+  }
 }
 
 // ── Render panel from context ──
@@ -201,16 +228,16 @@ function buildPanelHTML(item, listings, meta = {}) {
   const medPct = Math.max(0, Math.min(100, (median / rangeMax) * 100));
   const fillW = Math.max(0, highPct - lowPct);
   const rangeNote = n >= 30 ? '' :
-    n >= 10 ? `<div style="font-size:10px;color:var(--text3);font-family:'Space Mono',monospace;margin-top:5px">⚠ Range estimated — fewer than 30 samples</div>` :
-    n >= 3  ? `<div style="font-size:10px;color:var(--gold2);font-family:'Space Mono',monospace;margin-top:5px">⚠ Low sample count — range is approximate</div>` :
-               `<div style="font-size:10px;color:var(--red);font-family:'Space Mono',monospace;margin-top:5px">⚠ Very few samples — treat range as indicative only</div>`;
+      n >= 10 ? `<div style="font-size:10px;color:var(--text3);font-family:'Space Mono',monospace;margin-top:5px">⚠ Range estimated — fewer than 30 samples</div>` :
+          n >= 3  ? `<div style="font-size:10px;color:var(--gold2);font-family:'Space Mono',monospace;margin-top:5px">⚠ Low sample count — range is approximate</div>` :
+              `<div style="font-size:10px;color:var(--red);font-family:'Space Mono',monospace;margin-top:5px">⚠ Very few samples — treat range as indicative only</div>`;
   let html = '';
   // Price hero
   html += `<div class="price-hero">
     <div class="ph-label">Median Unit Price</div>
     <div style="display:flex;align-items:center;gap:0">
       <div class="ph-median">${fmt(median)}</div>
-      <button class="copy-price-btn" onclick="copyPrice(${median}, this)" title="Copy price">
+      <button type="button" class="copy-price-btn" onclick="copyPrice(${median}, this)" title="Copy price" aria-label="Copy price">
         <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3.5" y="3.5" width="6" height="6" rx="1"/><path d="M1.5 7.5V1.5h6"/></svg>
       </button>
     </div>
@@ -240,25 +267,25 @@ function buildPanelHTML(item, listings, meta = {}) {
   html += `<div class="meta-pills">
     ${catBadge(pd.category)}
     ${pd.setName ? `<div class="mpill"><span class="mplabel">Set</span> ${esc(pd.setName)}</div>` : ''}
-    <button type="button" class="mpill mpill-btn ${isFav(pd.rawKey) ? 'on' : ''}" data-act="fav" data-key="${esc(pd.rawKey)}" title="Toggle favorite" id="panelFavBtn">★ Favorite</button>
-    <button type="button" class="mpill mpill-btn ${compareKeys.includes(pd.rawKey) ? 'on' : ''}" data-act="cmp" data-key="${esc(pd.rawKey)}" title="Toggle compare" id="panelCmpBtn">⇄ Compare</button>
+    <button type="button" class="mpill mpill-btn ${isFav(pd.rawKey) ? 'on' : ''}" data-act="fav" data-key="${esc(pd.rawKey)}" title="Toggle favorite" aria-label="Toggle favorite" aria-pressed="${isFav(pd.rawKey) ? 'true' : 'false'}" id="panelFavBtn">★ Favorite</button>
+    <button type="button" class="mpill mpill-btn ${compareKeys.includes(pd.rawKey) ? 'on' : ''}" data-act="cmp" data-key="${esc(pd.rawKey)}" title="Toggle compare" aria-label="Toggle compare" aria-pressed="${compareKeys.includes(pd.rawKey) ? 'true' : 'false'}" id="panelCmpBtn">⇄ Compare</button>
   </div>`;
   // Recent listings section
   html += `<div class="psec"><div class="psec-title">Recent Listings</div>`;
   html += `<div class="pctrl">
     <span class="pcl">Sort</span>
     <div class="cselect" id="panelSortSel">
-      <button type="button" class="cselect-btn" onclick="togglePanelSortSel()">
+      <button type="button" class="cselect-btn" onclick="togglePanelSortSel()" aria-haspopup="listbox" aria-expanded="false">
         <span class="cval" id="panelSortVal">${panelSortLabel()}</span><span class="car">▾</span>
       </button>
-      <div class="cselect-menu" id="panelSortMenu">
+      <div class="cselect-menu" id="panelSortMenu" role="listbox" aria-label="Sort listings">
         <button type="button" class="copt ${panelSort === 'newest' ? 'on' : ''}" data-sort="newest" onclick="setPanelSort('newest');closeAllCSelects();">Newest</button>
         <button type="button" class="copt ${panelSort === 'price_asc' ? 'on' : ''}" data-sort="price_asc" onclick="setPanelSort('price_asc');closeAllCSelects();">Price ↑</button>
         <button type="button" class="copt ${panelSort === 'price_desc' ? 'on' : ''}" data-sort="price_desc" onclick="setPanelSort('price_desc');closeAllCSelects();">Price ↓</button>
         <button type="button" class="copt ${panelSort === 'seller' ? 'on' : ''}" data-sort="seller" onclick="setPanelSort('seller');closeAllCSelects();">Seller rating</button>
       </div>
     </div>
-    <button type="button" class="ctoggle ${panelIncludeFlagged ? 'on' : ''}" id="panelFlagTog" onclick="setPanelIncludeFlagged(!panelIncludeFlagged)">
+    <button type="button" class="ctoggle ${panelIncludeFlagged ? 'on' : ''}" id="panelFlagTog" onclick="setPanelIncludeFlagged(!panelIncludeFlagged)" role="switch" aria-checked="${panelIncludeFlagged ? 'true' : 'false'}">
       <span class="ctog" aria-hidden="true"></span>Include flagged
     </button>
   </div>`;
@@ -270,7 +297,7 @@ function buildPanelHTML(item, listings, meta = {}) {
   html += `<div id="panelListings">${buildPanelListingsHTML(pd, listings)}</div></div>`;
   html += `<div id="panelTopSellers">${buildPanelTopSellersHTML(listings)}</div>`;
   // Panel scroll-to-top
-  html += `<button class="panel-scroll-top" onclick="$('panel-body').scrollTo({top:0,behavior:'smooth'})">
+  html += `<button type="button" class="panel-scroll-top" onclick="$('panel-body').scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
     <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="2,7 5.5,3.5 9,7"/></svg>
     Back to top
   </button>`;

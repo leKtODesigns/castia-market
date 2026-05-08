@@ -3,11 +3,174 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ── Overlay UI state (panel / compare) ──
+// Keeps global "overlay-open" class in sync + applies mobile scroll-lock + basic a11y shell behavior.
+let _scrollLockY = 0;
+let _scrollLockOn = false;
+function _shouldLockBodyScroll() {
+  // Mobile-first: lock on coarse pointer or small screens (prevents background scroll under sheets/modals).
+  try { return window.matchMedia('(max-width: 600px), (pointer: coarse)').matches; }
+  catch (_e) { return window.innerWidth <= 600; }
+}
+function _setBodyScrollLocked(locked) {
+  if (!locked) {
+    if (!_scrollLockOn) return;
+    _scrollLockOn = false;
+    document.body.classList.remove('scroll-locked');
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
+    document.body.style.overflow = '';
+    window.scrollTo({ top: _scrollLockY, left: 0, behavior: 'auto' });
+    return;
+  }
+  if (_scrollLockOn) return;
+  _scrollLockOn = true;
+  _scrollLockY = window.scrollY || 0;
+  document.body.classList.add('scroll-locked');
+  // iOS-friendly locking: fixed body with negative top offset.
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${_scrollLockY}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  document.body.style.width = '100%';
+  document.body.style.overflow = 'hidden';
+}
+
 function updateOverlayUI() {
   const panelOpen = !!(panel && panel.classList.contains('open'));
   const cmpOpen = !!(compareModal && compareModal.classList.contains('on'));
-  document.body.classList.toggle('overlay-open', panelOpen || cmpOpen);
+  const open = panelOpen || cmpOpen;
+  const lockForPanel = panelOpen && _shouldLockBodyScroll(); // mobile only
+  const lockForCompare = cmpOpen; // modal always locks
+  const lock = lockForPanel || lockForCompare;
+
+  document.body.classList.toggle('overlay-open', open);
+
+  // Scroll-lock: always for compare modal; for detail panel only on mobile.
+  _setBodyScrollLocked(lock);
+
+  // A11y / interaction: compare modal should isolate the page; detail panel only isolates on mobile.
+  if (appShell) {
+    appShell.setAttribute('aria-hidden', lock ? 'true' : 'false');
+    try { appShell.toggleAttribute('inert', lock); } catch (_e) {}
+  }
+  if (panel) panel.setAttribute('aria-hidden', panelOpen ? 'false' : 'true');
+  if (compareModal) compareModal.setAttribute('aria-hidden', cmpOpen ? 'false' : 'true');
+
+  const cmpBtn = $('cmpBtn');
+  if (cmpBtn) {
+    cmpBtn.setAttribute('aria-haspopup', 'dialog');
+    cmpBtn.setAttribute('aria-expanded', cmpOpen ? 'true' : 'false');
+  }
 }
+
+// ── Focus management + keyboard trap for overlays ──
+const _overlayFocus = {
+  stack: [],
+  keyHandler: null,
+  focusInHandler: null,
+};
+
+function _getFocusable(root) {
+  if (!root) return [];
+  const q = [
+    'a[href]',
+    'button:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])',
+  ].join(',');
+  return [...root.querySelectorAll(q)].filter(el => {
+    if (!(el instanceof HTMLElement)) return false;
+    const style = window.getComputedStyle(el);
+    return style.visibility !== 'hidden' && style.display !== 'none';
+  });
+}
+
+function _activeOverlayContainer() {
+  return _overlayFocus.stack.length ? _overlayFocus.stack[_overlayFocus.stack.length - 1].container : null;
+}
+function overlayFocusTop() { return _activeOverlayContainer(); }
+function overlayFocusHas(container) { return !!_overlayFocus.stack.find(s => s.container === container); }
+
+function _ensureOverlayTrapHandlers() {
+  if (_overlayFocus.keyHandler) return;
+
+  _overlayFocus.keyHandler = (e) => {
+    if (e.key !== 'Tab') return;
+    const container = _activeOverlayContainer();
+    if (!container) return;
+    const focusables = _getFocusable(container);
+    if (!focusables.length) { e.preventDefault(); container.focus?.(); return; }
+    const first = focusables[0], last = focusables[focusables.length - 1];
+    const cur = document.activeElement;
+
+    if (e.shiftKey) {
+      if (cur === first || !container.contains(cur)) { e.preventDefault(); last.focus(); }
+    } else {
+      if (cur === last) { e.preventDefault(); first.focus(); }
+    }
+  };
+
+  _overlayFocus.focusInHandler = (e) => {
+    const container = _activeOverlayContainer();
+    if (!container) return;
+    if (container.contains(e.target)) return;
+    const focusables = _getFocusable(container);
+    const target = focusables[0] || container;
+    if (target && target.focus) target.focus();
+  };
+
+  document.addEventListener('keydown', _overlayFocus.keyHandler, true);
+  document.addEventListener('focusin', _overlayFocus.focusInHandler, true);
+}
+
+function _maybeRemoveOverlayTrapHandlers() {
+  if (_overlayFocus.stack.length) return;
+  if (_overlayFocus.keyHandler) document.removeEventListener('keydown', _overlayFocus.keyHandler, true);
+  if (_overlayFocus.focusInHandler) document.removeEventListener('focusin', _overlayFocus.focusInHandler, true);
+  _overlayFocus.keyHandler = null;
+  _overlayFocus.focusInHandler = null;
+}
+
+function overlayFocusPush(container, initialFocusEl) {
+  if (!container) return;
+  _ensureOverlayTrapHandlers();
+  const returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  _overlayFocus.stack.push({ container, returnFocus });
+
+  // Defer focus until after DOM updates / animations.
+  setTimeout(() => {
+    const root = _activeOverlayContainer();
+    if (root !== container) return;
+    const focusTarget = (initialFocusEl && container.contains(initialFocusEl)) ? initialFocusEl : (_getFocusable(container)[0] || container);
+    if (focusTarget && focusTarget.focus) focusTarget.focus({ preventScroll: true });
+  }, 0);
+}
+
+function overlayFocusPop(container) {
+  if (!container) return;
+  // Only pop if it exists in stack (usually top).
+  const idx = [..._overlayFocus.stack].map(s => s.container).lastIndexOf(container);
+  if (idx < 0) return;
+  const [entry] = _overlayFocus.stack.splice(idx, 1);
+
+  // Restore focus to where user was before this overlay opened.
+  if (entry?.returnFocus && document.contains(entry.returnFocus)) {
+    try { entry.returnFocus.focus({ preventScroll: true }); } catch (_e) {}
+  }
+
+  _maybeRemoveOverlayTrapHandlers();
+}
+
+// Expose helpers for panel.js (loaded earlier).
+window.overlayFocusPush = overlayFocusPush;
+window.overlayFocusPop = overlayFocusPop;
+window.overlayFocusTop = overlayFocusTop;
+window.overlayFocusHas = overlayFocusHas;
 
 // ── Favorites ──
 function isFav(key) { return favSet.has(String(key || '')); }
@@ -23,6 +186,10 @@ function toggleFavorite(key) {
   document.querySelectorAll(`[data-act="fav"][data-key="${CSS.escape(k)}"]`).forEach(btn => {
     btn.classList.toggle('on', favSet.has(k));
     btn.title = favSet.has(k) ? 'Remove from favorites' : 'Add to favorites';
+    try {
+      btn.setAttribute('aria-label', btn.title);
+      btn.setAttribute('aria-pressed', favSet.has(k) ? 'true' : 'false');
+    } catch (_e) {}
     // Pulse animation only when adding
     if (adding) {
       btn.classList.remove('just-activated');
@@ -80,10 +247,17 @@ function toggleCompare(key) {
   document.querySelectorAll(`[data-act="cmp"][data-key="${CSS.escape(k)}"]`).forEach(btn => {
     btn.classList.toggle('on', inCmp);
     btn.title = inCmp ? 'Remove from compare' : 'Add to compare';
+    try {
+      btn.setAttribute('aria-label', btn.title);
+      btn.setAttribute('aria-pressed', inCmp ? 'true' : 'false');
+    } catch (_e) {}
   });
   // Live-update panel compare pill if open
   const panelCmpBtn = $('panelCmpBtn');
-  if (panelCmpBtn) panelCmpBtn.classList.toggle('on', inCmp);
+  if (panelCmpBtn) {
+    panelCmpBtn.classList.toggle('on', inCmp);
+    try { panelCmpBtn.setAttribute('aria-pressed', inCmp ? 'true' : 'false'); } catch (_e) {}
+  }
   // Update compare modal if open - only update button states, don't reopen
   if (compareModal && compareModal.classList.contains('on')) {
     openCompare();
@@ -93,6 +267,8 @@ function toggleCompare(key) {
 function updateTopButtons() {
   if (favOnlyBtn) favOnlyBtn.classList.toggle('on', !!favOnly);
   if (dsBtn) dsBtn.classList.toggle('on', !!dataSaver);
+  if (favOnlyBtn) favOnlyBtn.setAttribute('aria-pressed', favOnly ? 'true' : 'false');
+  if (dsBtn) dsBtn.setAttribute('aria-pressed', dataSaver ? 'true' : 'false');
   const banner = $('dsBanner'); if (banner) banner.classList.toggle('on', !!dataSaver);
   if (cmpCountEl) {
     const n = compareKeys.length;
@@ -111,6 +287,7 @@ function updateTopButtons() {
 
 function openCompare() {
   if (!compareModal || !cmpBody) return;
+  const wasOpen = compareModal.classList.contains('on');
   if (!compareKeys.length) {
     cmpBody.innerHTML = `<div class="cmp-empty">
       <div class="eicon">⇄</div>
@@ -147,13 +324,13 @@ function openCompare() {
             <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">${catBadge(r.category)}${r.tier ? tierBadge(r.tier) : ''}</div>
           </div>
           <div class="cmp-item-actions">
-            <button class="fstar ${inFav ? 'on' : ''}" data-act="fav" data-key="${esc(r.rawKey)}" title="${inFav ? 'Remove from favorites' : 'Add to favorites'}">★</button>
+            <button type="button" class="fstar ${inFav ? 'on' : ''}" data-act="fav" data-key="${esc(r.rawKey)}" title="${inFav ? 'Remove from favorites' : 'Add to favorites'}" aria-label="${inFav ? 'Remove from favorites' : 'Add to favorites'}" aria-pressed="${inFav ? 'true' : 'false'}">★</button>
           </div>
         </div>
         ${metaHTML}
         <div class="cmp-price-row">
           <div class="cmp-price">${fmt(r.median)}</div>
-          <button class="copy-price-btn" onclick="copyPriceFromCmp(${r.median}, this)" title="Copy price">
+          <button type="button" class="copy-price-btn" onclick="copyPriceFromCmp(${r.median}, this)" title="Copy price" aria-label="Copy price">
             <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3.5" y="3.5" width="6" height="6" rx="1"/><path d="M1.5 7.5V1.5h6"/></svg>
           </button>
         </div>
@@ -163,8 +340,8 @@ function openCompare() {
         <div class="cmp-row"><span class="rl">Samples</span><span style="font-family:'Space Mono',monospace">${r.samples?.toLocaleString() || '—'}</span></div>
         <div class="cmp-row"><span class="rl">Last seen</span><span style="font-family:'Space Mono',monospace">${fmtT(r.last_seen)}</span></div>
         <div class="cmp-footer">
-          <button class="hbtn" data-act="cmp-open" data-key="${esc(r.rawKey)}">Open detail</button>
-          <button class="hbtn" data-act="cmp-remove" data-key="${esc(r.rawKey)}">Remove</button>
+          <button type="button" class="hbtn" data-act="cmp-open" data-key="${esc(r.rawKey)}" aria-label="Open details">Open detail</button>
+          <button type="button" class="hbtn" data-act="cmp-remove" data-key="${esc(r.rawKey)}" aria-label="Remove from compare">Remove</button>
         </div>
       </div>`;
     }).join('');
@@ -177,13 +354,21 @@ function openCompare() {
   const card = compareModal.querySelector('.cmp-card');
   if (card) { card.style.animation = 'none'; card.offsetWidth; card.style.animation = ''; }
   updateOverlayUI();
+  if (!wasOpen) window.overlayFocusPush?.(card || compareModal, $('cmpCloseBtn') || card);
 }
 
 function closeCompare() {
   if (!compareModal) return;
+  const card = compareModal.querySelector('.cmp-card');
   compareModal.classList.remove('on');
   compareModal.setAttribute('aria-hidden', 'true');
   updateOverlayUI();
+  window.overlayFocusPop?.(card || compareModal);
+  // If the detail panel is still open behind the modal but wasn't trapped yet, trap it (mobile only).
+  if (panel && panel.classList.contains('open') && _shouldLockBodyScroll()) {
+    const top = window.overlayFocusTop?.();
+    if (top !== panel && !window.overlayFocusHas?.(panel)) window.overlayFocusPush?.(panel, $('panelCloseBtn') || panel);
+  }
 }
 
 // Copy price variant for compare modal — targets the clicked button directly
@@ -231,36 +416,36 @@ panel.addEventListener('click', e => {
   if (act.dataset.act === 'cmp') { e.preventDefault(); toggleCompare(key); return; }
 });
 
-  if (compareModal) {
-    compareModal.addEventListener('click', e => {
-      const act = e.target.closest('[data-act]'); if (!act) return;
-      const key = act.dataset.key;
-      if (act.dataset.act === 'fav') {
-        e.preventDefault();
-        toggleFavorite(key);
-        // Don't call openCompare() - just update the modal state
-        if (compareModal.classList.contains('on')) {
-          updateCmpTooltip();
-        }
-        return;
+if (compareModal) {
+  compareModal.addEventListener('click', e => {
+    const act = e.target.closest('[data-act]'); if (!act) return;
+    const key = act.dataset.key;
+    if (act.dataset.act === 'fav') {
+      e.preventDefault();
+      toggleFavorite(key);
+      // Don't call openCompare() - just update the modal state
+      if (compareModal.classList.contains('on')) {
+        updateCmpTooltip();
       }
-      if (act.dataset.act === 'cmp-open')   { e.preventDefault(); closeCompare(); openPanel(key); return; }
-      if (act.dataset.act === 'cmp-remove') {
-        e.preventDefault();
-        // Remove the item with fade-out animation
-        const item = e.target.closest('.cmp-item');
-        if (item) {
-          item.style.opacity = '0';
-          item.style.transform = 'translateY(-8px)';
-          setTimeout(() => {
-            toggleCompare(key);
-            openCompare();
-          }, 200);
-        }
-        return;
+      return;
+    }
+    if (act.dataset.act === 'cmp-open')   { e.preventDefault(); closeCompare(); openPanel(key); return; }
+    if (act.dataset.act === 'cmp-remove') {
+      e.preventDefault();
+      // Remove the item with fade-out animation
+      const item = e.target.closest('.cmp-item');
+      if (item) {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(-8px)';
+        setTimeout(() => {
+          toggleCompare(key);
+          openCompare();
+        }, 200);
       }
-    });
-  }
+      return;
+    }
+  });
+}
 
 // ── Search input events ──
 qEl.addEventListener('input', () => {

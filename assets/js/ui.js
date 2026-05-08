@@ -18,7 +18,14 @@ const compareModal = $('compareModal'), cmpBody = $('cmpBody');
 // ── Boot helpers ──
 function bootShow(msg) { if (!boot) return; if (msg && bootTxt) bootTxt.textContent = msg; boot.classList.add('on'); boot.classList.remove('off'); boot.setAttribute('aria-hidden', 'false'); }
 function bootMsg(msg) { if (bootTxt) bootTxt.textContent = msg; }
-function bootHide() { if (!boot) return; boot.classList.remove('on'); boot.classList.add('off'); boot.setAttribute('aria-hidden', 'true'); }
+function bootHide() {
+  if (!boot) return;
+  boot.classList.remove('on');
+  boot.classList.add('off');
+  boot.setAttribute('aria-hidden', 'true');
+  // Marks the UI as "booted" so first-load-only animations don't retrigger on view toggles.
+  document.body.classList.add('booted');
+}
 
 // ── Status / toast ──
 function setSt(state, txt) { $('sdot').className = 'dot ' + state; $('stxt').textContent = txt; }
@@ -68,8 +75,17 @@ function withCGridFlip(mutator) {
 // ── Custom selects ──
 const cselects = new Map();
 function closeAllCSelects(exceptId = null) {
-  for (const [id, cs] of cselects) { if (exceptId && id === exceptId) continue; cs.wrap.classList.remove('open'); }
-  const ps = $('panelSortSel'); if (ps && (!exceptId || exceptId !== 'panelSortSel')) ps.classList.remove('open');
+  for (const [id, cs] of cselects) {
+    if (exceptId && id === exceptId) continue;
+    cs.wrap.classList.remove('open');
+    try { cs.btn?.setAttribute('aria-expanded', 'false'); } catch (_e) {}
+  }
+  const ps = $('panelSortSel');
+  if (ps && (!exceptId || exceptId !== 'panelSortSel')) {
+    ps.classList.remove('open');
+    const b = ps.querySelector('.cselect-btn');
+    if (b) b.setAttribute('aria-expanded', 'false');
+  }
 }
 function enhanceSelect(selectEl) {
   if (!selectEl || !selectEl.id) return;
@@ -77,8 +93,11 @@ function enhanceSelect(selectEl) {
   selectEl.classList.add('native-hidden');
   const wrap = document.createElement('div'); wrap.className = 'cselect'; wrap.dataset.for = id;
   const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'cselect-btn';
+  btn.setAttribute('aria-haspopup', 'listbox');
+  btn.setAttribute('aria-expanded', 'false');
   btn.innerHTML = `<span class="cval"></span><span class="car">▾</span>`;
   const menu = document.createElement('div'); menu.className = 'cselect-menu';
+  menu.setAttribute('role', 'listbox');
   wrap.appendChild(btn); wrap.appendChild(menu);
   selectEl.insertAdjacentElement('afterend', wrap);
   function refresh() {
@@ -90,8 +109,21 @@ function enhanceSelect(selectEl) {
     const selOpt = selectEl.querySelector(`option[value="${CSS.escape(cur)}"]`) || selectEl.options[selectEl.selectedIndex];
     btn.querySelector('.cval').textContent = selOpt ? (selOpt.textContent || selOpt.value || '—') : '—';
   }
-  btn.addEventListener('click', e => { e.preventDefault(); const isOpen = wrap.classList.contains('open'); closeAllCSelects(isOpen ? null : id); wrap.classList.toggle('open', !isOpen); });
-  menu.addEventListener('click', e => { const opt = e.target.closest('.copt[data-value]'); if (!opt) return; selectEl.value = opt.dataset.value ?? ''; selectEl.dispatchEvent(new Event('change', { bubbles: true })); refresh(); wrap.classList.remove('open'); });
+  btn.addEventListener('click', e => {
+    e.preventDefault();
+    const isOpen = wrap.classList.contains('open');
+    closeAllCSelects(isOpen ? null : id);
+    wrap.classList.toggle('open', !isOpen);
+    btn.setAttribute('aria-expanded', (!isOpen).toString());
+  });
+  menu.addEventListener('click', e => {
+    const opt = e.target.closest('.copt[data-value]'); if (!opt) return;
+    selectEl.value = opt.dataset.value ?? '';
+    selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+    refresh();
+    wrap.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+  });
   selectEl.addEventListener('change', refresh);
   refresh();
   cselects.set(id, { wrap, btn, menu, refresh });
@@ -164,19 +196,22 @@ function updateChips() {
 }
 function addChip(label, fn) {
   const d = document.createElement('div'); d.className = 'chip';
-  d.innerHTML = `${esc(label)}<button class="chipx" title="Remove">×</button>`;
+  d.innerHTML = `${esc(label)}<button class="chipx" type="button" title="Remove" aria-label="Remove filter">×</button>`;
   d.querySelector('.chipx').addEventListener('click', fn);
   $('chips').appendChild(d);
 }
 
 // ── Suggestions ──
 let suggItems = [], suggIndex = -1;
-function hideSugg() { suggEl.classList.remove('on'); suggEl.innerHTML = ''; suggItems = []; suggIndex = -1; }
+function hideSugg() { suggEl.classList.remove('on'); suggEl.innerHTML = ''; suggItems = []; suggIndex = -1; suggEl.setAttribute('aria-hidden', 'true'); }
 function showSugg(items) {
   suggItems = items || []; suggIndex = -1;
   if (!suggItems.length) { hideSugg(); return; }
-  suggEl.innerHTML = suggItems.map((it, i) => `<button type="button" data-i="${i}"><span class="sname">${esc(it.displayName)}</span><span class="smeta">${esc(it.categoryLabel || '')}</span></button>`).join('');
+  suggEl.innerHTML = suggItems.map((it, i) =>
+      `<button type="button" role="option" aria-selected="false" data-i="${i}"><span class="sname">${esc(it.displayName)}</span><span class="smeta">${esc(it.categoryLabel || '')}</span></button>`
+  ).join('');
   suggEl.classList.add('on');
+  suggEl.setAttribute('aria-hidden', 'false');
 }
 function updateSugg() {
   const q = qEl.value.trim().toLowerCase(); if (!q) { hideSugg(); return; }
@@ -195,9 +230,9 @@ function updateSugg() {
 function setSuggIndex(i) {
   suggIndex = i;
   const btns = [...suggEl.querySelectorAll('button[data-i]')];
-  btns.forEach(b => b.classList.remove('on'));
+  btns.forEach(b => { b.classList.remove('on'); b.setAttribute('aria-selected', 'false'); });
   const btn = btns.find(b => parseInt(b.dataset.i) === suggIndex);
-  if (btn) { btn.classList.add('on'); btn.scrollIntoView({ block: 'nearest' }); }
+  if (btn) { btn.classList.add('on'); btn.setAttribute('aria-selected', 'true'); btn.scrollIntoView({ block: 'nearest' }); }
 }
 function applySugg(i) {
   const it = suggItems[i]; if (!it) return false;
@@ -206,6 +241,12 @@ function applySugg(i) {
 }
 
 // ── Render ──
+// When switching view / doing background updates we suppress row/card stagger animations
+// to avoid a perceived “double load” (view fade + row fade).
+let _suppressNextStaggerAnim = false;
+function suppressNextStaggerAnim() { _suppressNextStaggerAnim = true; }
+window.suppressNextStaggerAnim = suppressNextStaggerAnim;
+
 function render() {
   const tot = filtered.length, pages = Math.max(1, Math.ceil(tot / PAGE));
   if (pg > pages) pg = pages;
@@ -232,7 +273,11 @@ function renderTbl(rows) {
   tbody.innerHTML = rows.map(r => {
     const isActive = r.rawKey === activeKey, ar = adaptiveRange(r);
     const inCmp = compareKeys.includes(r.rawKey);
-    const actions = `<span class="row-actions"><button class="fstar ${isFav(r.rawKey) ? 'on' : ''}" data-act="fav" data-key="${esc(r.rawKey)}" title="${isFav(r.rawKey) ? 'Remove from favorites' : 'Add to favorites'}">★</button><button class="cmp-star ${inCmp ? 'on' : ''}" data-act="cmp" data-key="${esc(r.rawKey)}" title="${inCmp ? 'Remove from compare' : 'Add to compare'}">⇄</button></span>`;
+    const favOn = isFav(r.rawKey);
+    const actions = `<span class="row-actions">
+      <button type="button" class="fstar ${favOn ? 'on' : ''}" data-act="fav" data-key="${esc(r.rawKey)}" title="${favOn ? 'Remove from favorites' : 'Add to favorites'}" aria-label="${favOn ? 'Remove from favorites' : 'Add to favorites'}" aria-pressed="${favOn ? 'true' : 'false'}">★</button>
+      <button type="button" class="cmp-star ${inCmp ? 'on' : ''}" data-act="cmp" data-key="${esc(r.rawKey)}" title="${inCmp ? 'Remove from compare' : 'Add to compare'}" aria-label="${inCmp ? 'Remove from compare' : 'Add to compare'}" aria-pressed="${inCmp ? 'true' : 'false'}">⇄</button>
+    </span>`;
     return `<tr data-key="${esc(r.rawKey)}" class="${isActive ? 'active-row' : ''}">
       <td class="item-col"><span class="iname-wrap" title="${esc(r.rawKey)}">${actions}<span class="iname-txt">${esc(r.displayName)}</span>${skillTagH(r.skillTag)}</span></td>
       <td class="hsm hpanel">${catBadge(r.category)}${r.tier ? '&nbsp;' + tierBadge(r.tier) : ''}</td>
@@ -243,6 +288,7 @@ function renderTbl(rows) {
       <td>${sampH(r.samples)}</td>
     </tr>`;
   }).join('');
+  if (_suppressNextStaggerAnim) { _suppressNextStaggerAnim = false; return; }
   // Trigger stagger animation — rAF ensures DOM is painted first
   requestAnimationFrame(() => {
     tbody.classList.add('rows-animating');
@@ -255,11 +301,11 @@ function renderTbl(rows) {
 // ── Image helpers ──
 function imageSlugFromRawKey(rawKey) {
   return String(rawKey || '').replace(/\|t[123]$/i, '').replace(/\s*\[[^\]]+\]\s*$/, '').trim().toLowerCase()
-    .replace(/&/g, 'and').replace(/['"]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 120) || 'unknown';
+      .replace(/&/g, 'and').replace(/['"]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 120) || 'unknown';
 }
 function slugifyText(txt) {
   return String(txt || '').trim().toLowerCase()
-    .replace(/&/g, 'and').replace(/['"]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'unknown';
+      .replace(/&/g, 'and').replace(/['"]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'unknown';
 }
 function imagePathsForRow(r) {
   if (!r || r.category === 'misc') return [];
@@ -355,17 +401,18 @@ function renderCards(rows) {
   cgrid.innerHTML = rows.map(r => {
     const isActive = r.rawKey === activeKey, ar = adaptiveRange(r);
     const inCmp = compareKeys.includes(r.rawKey);
+    const favOn = isFav(r.rawKey);
     const imgPaths = imagePathsForRow(r);
     const isMisc = r.category === 'misc';
     const showImg = !dataSaver && (imgPaths.length || isMisc);
     const imgHTML = showImg
-      ? `<div class="cimgwrap${isMisc ? ' cimgwrap-misc' : ''}">${imgPaths.length ? imageHTMLForRow(r, '') : '<img src="./assets/images/items/_placeholder.svg" alt="" />'}</div>`
-      : '';
+        ? `<div class="cimgwrap${isMisc ? ' cimgwrap-misc' : ''}">${imgPaths.length ? imageHTMLForRow(r, '') : '<img src="./assets/images/items/_placeholder.svg" alt="" />'}</div>`
+        : '';
     return `<div class="pcard ${isActive ? 'active-card' : ''}" data-key="${esc(r.rawKey)}">
       ${imgHTML}
       <div class="ccard-actions">
-        <button class="fstar ${isFav(r.rawKey) ? 'on' : ''}" data-act="fav" data-key="${esc(r.rawKey)}" title="${isFav(r.rawKey) ? 'Remove from favorites' : 'Add to favorites'}">★</button>
-        <button class="cmp-star ${inCmp ? 'on' : ''}" data-act="cmp" data-key="${esc(r.rawKey)}" title="${inCmp ? 'Remove from compare' : 'Add to compare'}">⇄</button>
+        <button type="button" class="fstar ${favOn ? 'on' : ''}" data-act="fav" data-key="${esc(r.rawKey)}" title="${favOn ? 'Remove from favorites' : 'Add to favorites'}" aria-label="${favOn ? 'Remove from favorites' : 'Add to favorites'}" aria-pressed="${favOn ? 'true' : 'false'}">★</button>
+        <button type="button" class="cmp-star ${inCmp ? 'on' : ''}" data-act="cmp" data-key="${esc(r.rawKey)}" title="${inCmp ? 'Remove from compare' : 'Add to compare'}" aria-label="${inCmp ? 'Remove from compare' : 'Add to compare'}" aria-pressed="${inCmp ? 'true' : 'false'}">⇄</button>
       </div>
       <div class="ccard-head">
         <div class="ckey" title="${esc(r.rawKey)}"><span class="iname-wrap"><span class="iname-txt">${esc(r.displayName)}</span>${skillTagH(r.skillTag)}</span></div>
@@ -377,6 +424,7 @@ function renderCards(rows) {
     </div>`;
   }).join('');
   observeLazyImages(cgrid);
+  if (_suppressNextStaggerAnim) { _suppressNextStaggerAnim = false; return; }
   requestAnimationFrame(() => {
     cgrid.classList.add('cards-animating');
     clearTimeout(renderCards._t);
@@ -461,6 +509,7 @@ function updateSortUI() {
 
 // ── View toggle ──
 function setView(v) {
+  suppressNextStaggerAnim(); // avoids “double load” feeling when switching view
   vw = v;
   const tvw = $('tvw'), cvw = $('cvw');
   tvw.style.display = v === 'table' ? '' : 'none';
