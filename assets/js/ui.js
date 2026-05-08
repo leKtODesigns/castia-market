@@ -363,12 +363,12 @@ function renderCards(rows) {
       : '';
     return `<div class="pcard ${isActive ? 'active-card' : ''}" data-key="${esc(r.rawKey)}">
       ${imgHTML}
+      <div class="ccard-actions">
+        <button class="fstar ${isFav(r.rawKey) ? 'on' : ''}" data-act="fav" data-key="${esc(r.rawKey)}" title="${isFav(r.rawKey) ? 'Remove from favorites' : 'Add to favorites'}">★</button>
+        <button class="cmp-star ${inCmp ? 'on' : ''}" data-act="cmp" data-key="${esc(r.rawKey)}" title="${inCmp ? 'Remove from compare' : 'Add to compare'}">⇄</button>
+      </div>
       <div class="ccard-head">
         <div class="ckey" title="${esc(r.rawKey)}"><span class="iname-wrap"><span class="iname-txt">${esc(r.displayName)}</span>${skillTagH(r.skillTag)}</span></div>
-        <div class="ccard-actions">
-          <button class="fstar ${isFav(r.rawKey) ? 'on' : ''}" data-act="fav" data-key="${esc(r.rawKey)}" title="${isFav(r.rawKey) ? 'Remove from favorites' : 'Add to favorites'}">★</button>
-          <button class="cmp-star ${inCmp ? 'on' : ''}" data-act="cmp" data-key="${esc(r.rawKey)}" title="${inCmp ? 'Remove from compare' : 'Add to compare'}">⇄</button>
-        </div>
       </div>
       ${cardExtraH(r)}
       <div class="cprice">${fmt(r.median)}</div>
