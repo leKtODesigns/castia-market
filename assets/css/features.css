@@ -4,29 +4,30 @@
 .cselect.open{z-index:200;}
 .cselect-btn{width:100%;height:38px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r-sm);color:var(--text);font-family:'Space Mono',monospace;font-size:12px;cursor:pointer;transition:border-color .15s,background .15s,color .15s;}
 .cselect-btn:hover{border-color:var(--border3);color:var(--text)}
+.cselect-btn:active{transform:scale(.99)}
 .cselect.open .cselect-btn{border-color:var(--gold2);background:var(--bg3)}
 .cselect-btn .cval{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cselect-btn .car{opacity:.75;color:var(--text3);transition:transform .15s ease}
+.cselect-btn .car{opacity:.75;color:var(--text3);transition:transform .2s cubic-bezier(.2,.8,.2,1),color .15s;}
 .cselect.open .cselect-btn .car{transform:rotate(180deg);color:var(--gold)}
 .cselect-menu{position:absolute;left:0;right:0;top:44px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);overflow:hidden;box-shadow:0 10px 24px rgba(0,0,0,.35);display:none;z-index:1100;transform-origin:top center;animation:menuOpen .18s cubic-bezier(.2,.8,.2,1) both;}
 .cselect.open .cselect-menu{display:block}
-.copt{width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:10px 11px;font-family:'Space Mono',monospace;font-size:12px;color:var(--text2);display:flex;align-items:center;gap:8px;}
+.copt{width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:10px 11px;font-family:'Space Mono',monospace;font-size:12px;color:var(--text2);display:flex;align-items:center;gap:8px;transition:background .1s,color .1s;}
 .copt:hover{background:var(--gold-bg);color:var(--text)}
 .copt.on{background:rgba(237,184,74,0.10);color:var(--gold)}
 
 /* ── Toggle switch ── */
-.ctoggle{display:inline-flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--border2);border-radius:999px;padding:6px 12px;cursor:pointer;user-select:none;transition:border-color .15s,color .15s,background .15s,transform .15s;font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);}
+.ctoggle{display:inline-flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--border2);border-radius:999px;padding:6px 12px;cursor:pointer;user-select:none;transition:border-color .15s,color .15s,background .15s,transform .1s;font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);}
 .ctoggle:hover{border-color:var(--border3);color:var(--text)}
-.ctoggle:active{transform:scale(0.99)}
-.ctog{width:34px;height:18px;border-radius:999px;border:1px solid var(--border3);background:var(--bg4);position:relative;transition:background .15s,border-color .15s;flex-shrink:0;}
-.ctog::after{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.35);transition:transform .15s,background .15s;}
+.ctoggle:active{transform:scale(0.98)}
+.ctog{width:34px;height:18px;border-radius:999px;border:1px solid var(--border3);background:var(--bg4);position:relative;transition:background .2s,border-color .2s;flex-shrink:0;}
+.ctog::after{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.35);transition:transform .2s cubic-bezier(.2,.8,.2,1),background .2s;}
 .ctoggle.on .ctog{background:var(--gold-bg2);border-color:var(--gold3)}
 .ctoggle.on .ctog::after{transform:translateX(16px);background:var(--gold)}
 
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important;}
-  .boot-spinner,.skel,.panel-skel{animation:none!important;}
+  .boot-spinner,.skel,.panel-skel,.pskel-block,.pskel-line{animation:none!important;}
 }
 
 /* ── Focus-visible ring ── */
@@ -37,31 +38,49 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none;}
 #scrollTopBtn{position:fixed;bottom:1.25rem;left:1.25rem;width:34px;height:34px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);color:var(--text3);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:900;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .2s,transform .2s,border-color .15s,color .15s,background .15s;}
 #scrollTopBtn.on{opacity:1;transform:translateY(0);pointer-events:auto;}
 #scrollTopBtn:hover{border-color:var(--gold3);color:var(--gold);background:var(--gold-bg);}
-@media(max-width:900px){#scrollTopBtn{display:none;}}
+#scrollTopBtn:active{transform:translateY(0) scale(.92);}
 
-/* ── Page-level fade-in animations ── */
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* ── Page-level fade-in on load ── */
 .stats-bar{animation:fadeUp .35s ease both;}
 .ctrl-row{animation:fadeUp .35s .05s ease both;}
 .ctrl-row2{animation:fadeUp .35s .08s ease both;}
 .rbar{animation:fadeUp .35s .10s ease both;}
 #tvw,#cvw{animation:fadeUp .35s .13s ease both;}
 
-/* ── Card hover lift ── */
-.pcard{transition:border-color .15s,background .15s,transform .15s,box-shadow .15s;}
-.pcard:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.28);}
-.pcard.active-card{transform:none;box-shadow:none;}
+/* ── View switch: crossfade when swapping table/card ── */
+/* Applied via JS — a class added before switching */
+#tvw.view-entering,#cvw.view-entering{animation:viewFadeIn .22s cubic-bezier(.2,.8,.2,1) both;}
 
-/* ── Panel shadow when open ── */
-#detail-panel.open{box-shadow:-8px 0 40px rgba(0,0,0,.35);}
+/* ── Table row stagger ── */
+/* JS adds .rows-animating to tbody on render; each tr gets delay via nth-child */
+tbody.rows-animating tr{animation:rowIn .22s ease both;}
+tbody.rows-animating tr:nth-child(1){animation-delay:0ms}
+tbody.rows-animating tr:nth-child(2){animation-delay:20ms}
+tbody.rows-animating tr:nth-child(3){animation-delay:40ms}
+tbody.rows-animating tr:nth-child(4){animation-delay:60ms}
+tbody.rows-animating tr:nth-child(5){animation-delay:80ms}
+tbody.rows-animating tr:nth-child(6){animation-delay:95ms}
+tbody.rows-animating tr:nth-child(7){animation-delay:110ms}
+tbody.rows-animating tr:nth-child(8){animation-delay:120ms}
+tbody.rows-animating tr:nth-child(9){animation-delay:130ms}
+tbody.rows-animating tr:nth-child(10){animation-delay:138ms}
+/* Beyond 10: uniform — avoids delay piling up on large pages */
+tbody.rows-animating tr:nth-child(n+11){animation-delay:145ms}
 
-/* ── Toast animation ── */
-@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-#toast.on{animation:toastIn .18s ease;}
+/* ── Card stagger (complements FLIP) ── */
+.cgrid.cards-animating .pcard{animation:rowIn .22s ease both;}
+.cgrid.cards-animating .pcard:nth-child(1){animation-delay:0ms}
+.cgrid.cards-animating .pcard:nth-child(2){animation-delay:25ms}
+.cgrid.cards-animating .pcard:nth-child(3){animation-delay:45ms}
+.cgrid.cards-animating .pcard:nth-child(4){animation-delay:60ms}
+.cgrid.cards-animating .pcard:nth-child(5){animation-delay:72ms}
+.cgrid.cards-animating .pcard:nth-child(6){animation-delay:82ms}
+.cgrid.cards-animating .pcard:nth-child(7){animation-delay:90ms}
+.cgrid.cards-animating .pcard:nth-child(8){animation-delay:96ms}
+.cgrid.cards-animating .pcard:nth-child(n+9){animation-delay:100ms}
 
 /* ── Chip appear ── */
-@keyframes chipIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
-.chip{animation:chipIn .15s ease;}
+.chip{animation:chipIn .15s cubic-bezier(.2,.8,.2,1) both;}
 
 /* ── Typography polish ── */
 .sl{letter-spacing:.14em;}
@@ -81,57 +100,59 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none;}
 .cmp-tip-empty{color:var(--text3);font-size:10px;}
 
 /* ── Copy price button ── */
-.copy-price-btn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:none;border:1px solid var(--border2);border-radius:var(--r-xs);color:var(--text3);cursor:pointer;margin-left:8px;vertical-align:middle;transition:all .15s;flex-shrink:0;}
+.copy-price-btn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:none;border:1px solid var(--border2);border-radius:var(--r-xs);color:var(--text3);cursor:pointer;margin-left:8px;vertical-align:middle;transition:border-color .15s,color .15s,background .15s,transform .1s;flex-shrink:0;}
 .copy-price-btn:hover{border-color:var(--gold3);color:var(--gold);background:var(--gold-bg);}
+.copy-price-btn:active{transform:scale(.9);}
 .copy-price-btn.copied{border-color:var(--green);color:var(--green);background:var(--green-bg);}
 
 /* ── Panel scroll-to-top ── */
-.panel-scroll-top{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;background:none;border:none;border-top:1px solid var(--border);color:var(--text3);font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;transition:color .15s,background .15s;margin-top:1rem;}
+.panel-scroll-top{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;background:none;border:none;border-top:1px solid var(--border);color:var(--text3);font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;transition:color .15s,background .15s,transform .1s;margin-top:1rem;}
 .panel-scroll-top:hover{color:var(--gold);background:var(--gold-bg);}
+.panel-scroll-top:active{transform:scale(.98);}
 
 /* ── Row hover tooltip ── */
-.row-tip{position:fixed;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);padding:8px 12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);pointer-events:none;z-index:1500;box-shadow:0 8px 24px rgba(0,0,0,.35);display:none;min-width:160px;animation:tipIn .12s cubic-bezier(.2,.8,.2,1) both;}
-.row-tip.on{display:block;}
+.row-tip{position:fixed;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);padding:8px 12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);pointer-events:none;z-index:1500;box-shadow:0 8px 24px rgba(0,0,0,.35);
+  /* Always in DOM — shown via opacity/scale so we can animate out too */
+  opacity:0;transform:translateY(4px) scale(.97);pointer-events:none;
+  transition:opacity .12s ease,transform .12s cubic-bezier(.2,.8,.2,1);
+  min-width:160px;
+}
+.row-tip.on{opacity:1;transform:translateY(0) scale(1);pointer-events:none;}
 .row-tip-row{display:flex;justify-content:space-between;gap:16px;padding:2px 0;}
 .row-tip-label{color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.06em;}
 .row-tip-val{color:var(--text);font-weight:600;}
 
 /* ── Favorite star ── */
-.fstar{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;padding:0;font-size:12px;line-height:1;flex-shrink:0;transition:color .12s,border-color .12s,background .12s,transform .1s;}
+.fstar{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;padding:0;font-size:12px;line-height:1;flex-shrink:0;transition:color .12s,border-color .12s,background .12s,transform .12s;}
 .fstar:hover{color:var(--gold);border-color:var(--gold3);background:var(--gold-bg);transform:scale(1.15)}
 .fstar.on{color:var(--gold);border-color:var(--gold2);background:var(--gold-bg2)}
-.fstar:active{transform:scale(.92)}
+.fstar:active{transform:scale(.88)}
+/* Pulse when first activated */
+.fstar.just-activated,.vbtn.just-activated{animation:favPulse .35s cubic-bezier(.2,.8,.2,1);}
 
 /* ── Data saver banner ── */
-/* Use max-height transition for smooth slide-in/out instead of display:none toggle */
 .ds-banner{
   display:flex;max-height:0;overflow:hidden;opacity:0;
   align-items:center;gap:8px;background:var(--bg3);border:1px solid transparent;
   border-radius:var(--r);padding:0 14px;font-size:11px;font-family:'Space Mono',monospace;
   color:var(--text3);margin-bottom:0;
-  transition:max-height .3s cubic-bezier(.2,.8,.2,1),opacity .25s ease,padding .3s ease,margin-bottom .3s ease,border-color .3s ease;
+  transition:max-height .32s cubic-bezier(.2,.8,.2,1),opacity .25s ease,padding .32s ease,margin-bottom .32s ease,border-color .32s ease;
 }
-.ds-banner.on{
-  max-height:60px;opacity:1;padding:8px 14px;margin-bottom:10px;border-color:var(--border2);
-}
+.ds-banner.on{max-height:60px;opacity:1;padding:8px 14px;margin-bottom:10px;border-color:var(--border2);}
 .ds-banner svg{flex-shrink:0;color:var(--gold)}
-.ds-banner-off{background:none;border:none;color:var(--gold);cursor:pointer;font-family:'Space Mono',monospace;font-size:11px;padding:0;margin-left:auto;transition:color .15s}
+.ds-banner-off{background:none;border:none;color:var(--gold);cursor:pointer;font-family:'Space Mono',monospace;font-size:11px;padding:0;margin-left:auto;transition:color .15s,transform .1s;}
 .ds-banner-off:hover{color:var(--text)}
+.ds-banner-off:active{transform:scale(.95)}
 
 /* ── Compare modal ── */
-/* Use opacity+pointer-events instead of display:none so we can animate both in and out */
 .cmp-modal{
-  position:fixed;inset:0;
-  display:flex; /* always flex — visibility controlled by opacity */
+  position:fixed;inset:0;display:flex;
   z-index:6000;align-items:flex-start;justify-content:center;padding-top:64px;
   opacity:0;pointer-events:none;
   transition:opacity .22s ease;
 }
 .cmp-modal.on{opacity:1;pointer-events:auto;}
-.cmp-backdrop{
-  position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);
-  opacity:0;transition:opacity .28s ease;
-}
+.cmp-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);opacity:0;transition:opacity .28s ease;}
 .cmp-modal.on .cmp-backdrop{opacity:1;}
 .cmp-card{
   position:relative;width:min(1020px,calc(100vw - 2rem));max-height:calc(100vh - 100px);
@@ -147,12 +168,11 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none;}
 .cmp-empty .emsg{font-size:13px;font-family:'Space Mono',monospace;color:var(--text3)}
 .cmp-empty .esub{font-size:12px;margin-top:6px;color:var(--text3);line-height:1.6}
 .cmp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;align-items:start}
-/* Stagger each compare card for a polished cascade effect */
 .cmp-item{
   background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px;
   display:flex;flex-direction:column;
   animation:fadeUp .28s ease both;
-  transition:border-color .15s,background .15s,transform .15s,box-shadow .15s;
+  transition:border-color .15s,background .15s,transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .18s;
 }
 .cmp-item:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.28);border-color:var(--border2);}
 .cmp-item:nth-child(1){animation-delay:.06s}
@@ -161,11 +181,10 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none;}
 .cmp-item-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)}
 .cmp-item-name{font-size:13px;font-weight:600;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
 .cmp-item-actions{display:flex;gap:5px;flex-shrink:0}
-/* Price row with copy button — mirrors the detail panel layout */
 .cmp-price-row{display:flex;align-items:center;gap:6px;margin:8px 0 4px;}
 .cmp-price{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--gold);}
 .cmp-range{font-family:'Space Mono',monospace;font-size:10px;color:var(--text3);margin-bottom:10px}
-.cmp-row{display:flex;justify-content:space-between;align-items:center;font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);padding:5px 0;border-bottom:1px solid var(--border)}
+.cmp-row{display:flex;justify-content:space-between;align-items:center;font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);padding:5px 0;border-bottom:1px solid var(--border);transition:background .1s;}
 .cmp-row:last-child{border-bottom:none}
 .cmp-row .rl{color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.06em}
 .cmp-footer{display:flex;gap:6px;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
@@ -183,9 +202,8 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none;}
 
 /* ── Row/card action buttons ── */
 .row-actions{display:inline-flex;align-items:center;gap:4px;flex-shrink:0;padding-right:8px;margin-right:6px;border-right:1px solid var(--border2);}
-.cmp-star{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;padding:0;font-size:10px;line-height:1;flex-shrink:0;transition:color .12s,border-color .12s,background .12s,transform .1s;}
+.cmp-star{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;padding:0;font-size:10px;line-height:1;flex-shrink:0;transition:color .12s,border-color .12s,background .12s,transform .12s;}
 .cmp-star:hover{color:var(--blue);border-color:rgba(91,163,245,.4);background:var(--blue-bg);transform:scale(1.15);}
 .cmp-star.on{color:var(--blue);border-color:rgba(91,163,245,.5);background:var(--blue-bg);}
-.cmp-star:active{transform:scale(.92);}
-/* Card action row */
+.cmp-star:active{transform:scale(.88);}
 .ccard-actions{display:flex;align-items:center;gap:4px;flex-shrink:0;}

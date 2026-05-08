@@ -7,17 +7,25 @@ function isFav(key) { return favSet.has(String(key || '')); }
 
 function toggleFavorite(key) {
   const k = String(key || ''); if (!k) return;
+  const adding = !favSet.has(k);
   if (favSet.has(k)) favSet.delete(k); else favSet.add(k);
-  toast(favSet.has(k) ? 'Added to favorites' : 'Removed from favorites');
+  toast(adding ? 'Added to favorites' : 'Removed from favorites');
   scheduleSaveUIState();
   updateTopButtons();
   // Update all star buttons in the current view without a full re-render
   document.querySelectorAll(`[data-act="fav"][data-key="${CSS.escape(k)}"]`).forEach(btn => {
     btn.classList.toggle('on', favSet.has(k));
     btn.title = favSet.has(k) ? 'Remove from favorites' : 'Add to favorites';
+    // Pulse animation only when adding
+    if (adding) {
+      btn.classList.remove('just-activated');
+      btn.offsetWidth;
+      btn.classList.add('just-activated');
+      setTimeout(() => btn.classList.remove('just-activated'), 400);
+    }
   });
   renderPanelFromCtx({ partial: true });
-  // When in favOnly mode, immediately remove the item from the view
+  // When in favOnly mode, immediately remove the item from the view with FLIP
   if (favOnly) withCGridFlip(() => render());
 }
 
@@ -25,7 +33,14 @@ function toggleFavOnly() {
   favOnly = !favOnly;
   updateTopButtons();
   scheduleSaveUIState();
-  applyFilters();
+  // Pulse the button when activating favorites view
+  if (favOnly && favOnlyBtn) {
+    favOnlyBtn.classList.remove('just-activated');
+    favOnlyBtn.offsetWidth;
+    favOnlyBtn.classList.add('just-activated');
+    setTimeout(() => favOnlyBtn.classList.remove('just-activated'), 400);
+  }
+  withCGridFlip(() => applyFilters());
 }
 
 // ── Data saver ──
@@ -67,7 +82,15 @@ function updateTopButtons() {
   if (cmpCountEl) {
     const n = compareKeys.length;
     cmpCountEl.textContent = String(n);
+    const wasOff = cmpCountEl.classList.contains('off');
     cmpCountEl.classList.toggle('off', n <= 0);
+    // Pop animation when badge becomes visible or count changes
+    if (n > 0) {
+      cmpCountEl.classList.remove('pop');
+      cmpCountEl.offsetWidth;
+      cmpCountEl.classList.add('pop');
+      setTimeout(() => cmpCountEl.classList.remove('pop'), 400);
+    }
   }
 }
 

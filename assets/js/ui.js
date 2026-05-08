@@ -112,13 +112,20 @@ function buildCatFilter() {
 }
 
 // ── Stats bar ──
+function popStat(id, val) {
+  const el = $(id); if (!el) return;
+  el.textContent = val;
+  el.classList.remove('pop');
+  el.offsetWidth; // reflow to restart animation
+  el.classList.add('pop');
+}
 function updateStats() {
-  $('sTot').textContent = allPrices.length.toLocaleString();
+  popStat('sTot', allPrices.length.toLocaleString());
   const maxR = enriched.reduce((a, b) => (b.median || 0) > (a.median || 0) ? b : a, { median: 0 });
   const avg = enriched.length ? Math.round(enriched.reduce((s, r) => s + (r.median || 0), 0) / enriched.length) : 0;
-  $('sMax').textContent = fmt(maxR.median);
+  popStat('sMax', fmt(maxR.median));
   $('sMaxN').textContent = maxR.displayName ? (maxR.displayName.length > 22 ? maxR.displayName.slice(0, 20) + '…' : maxR.displayName) : '';
-  $('sAvg').textContent = fmt(avg);
+  popStat('sAvg', fmt(avg));
   $('sUpd').textContent = fmtT(lastLoaded);
 }
 
@@ -221,6 +228,7 @@ function adaptiveRange(r) {
 
 // ── Table render ──
 function renderTbl(rows) {
+  tbody.classList.remove('rows-animating');
   tbody.innerHTML = rows.map(r => {
     const isActive = r.rawKey === activeKey, ar = adaptiveRange(r);
     const inCmp = compareKeys.includes(r.rawKey);
@@ -235,6 +243,13 @@ function renderTbl(rows) {
       <td>${sampH(r.samples)}</td>
     </tr>`;
   }).join('');
+  // Trigger stagger animation — rAF ensures DOM is painted first
+  requestAnimationFrame(() => {
+    tbody.classList.add('rows-animating');
+    // Remove class after longest possible delay so re-renders retrigger correctly
+    clearTimeout(renderTbl._t);
+    renderTbl._t = setTimeout(() => tbody.classList.remove('rows-animating'), 600);
+  });
 }
 
 // ── Image helpers ──
@@ -336,6 +351,7 @@ function panelMetaHTML(r) {
 
 // ── Card render ──
 function renderCards(rows) {
+  cgrid.classList.remove('cards-animating');
   cgrid.innerHTML = rows.map(r => {
     const isActive = r.rawKey === activeKey, ar = adaptiveRange(r);
     const inCmp = compareKeys.includes(r.rawKey);
@@ -361,6 +377,11 @@ function renderCards(rows) {
     </div>`;
   }).join('');
   observeLazyImages(cgrid);
+  requestAnimationFrame(() => {
+    cgrid.classList.add('cards-animating');
+    clearTimeout(renderCards._t);
+    renderCards._t = setTimeout(() => cgrid.classList.remove('cards-animating'), 600);
+  });
 }
 
 // ── Badge / indicator helpers ──
@@ -379,15 +400,10 @@ function roundToCleanPrice(n) {
   const magnitude = Math.pow(10, Math.max(0, Math.floor(Math.log10(n)) - 1));
   return Math.round(n / magnitude) * magnitude;
 }
-function copyPrice(n) {
+function copyPrice(n, btn) {
   const rounded = roundToCleanPrice(Math.round(n || 0));
-  const val = String(rounded);
-  navigator.clipboard?.writeText(val).then(() => {
-    const btn = $('panel-body')?.querySelector('.copy-price-btn');
-    if (btn) {
-      btn.classList.add('copied');
-      setTimeout(() => btn.classList.remove('copied'), 1800);
-    }
+  navigator.clipboard?.writeText(String(rounded)).then(() => {
+    if (btn) { btn.classList.add('copied'); setTimeout(() => btn.classList.remove('copied'), 1800); }
     toast('Copied ' + rounded.toLocaleString());
   }).catch(() => toast('Could not copy', true));
 }
@@ -446,10 +462,17 @@ function updateSortUI() {
 // ── View toggle ──
 function setView(v) {
   vw = v;
-  $('tvw').style.display = v === 'table' ? '' : 'none';
-  $('cvw').style.display = v === 'card' ? '' : 'none';
+  const tvw = $('tvw'), cvw = $('cvw');
+  tvw.style.display = v === 'table' ? '' : 'none';
+  cvw.style.display = v === 'card' ? '' : 'none';
   $('vt').classList.toggle('on', v === 'table');
   $('vc').classList.toggle('on', v === 'card');
+  // Animate the entering view
+  const entering = v === 'table' ? tvw : cvw;
+  entering.classList.remove('view-entering');
+  entering.offsetWidth; // reflow
+  entering.classList.add('view-entering');
+  setTimeout(() => entering.classList.remove('view-entering'), 300);
   render(); scheduleSaveUIState();
 }
 

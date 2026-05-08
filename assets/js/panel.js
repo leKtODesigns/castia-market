@@ -43,7 +43,16 @@ async function openPanel(key) {
     panelMeta.innerHTML = panelMetaHTML(item);
     $('panel-body').innerHTML = panelSkeleton();
   };
-  if (wasOpen) await panelSwapAnimate(swap); else swap();
+  // Always animate — on first open, skip the fade-out step (nothing to hide)
+  if (wasOpen) {
+    await panelSwapAnimate(swap);
+  } else {
+    swap();
+    // Fade in skeleton on first open, consistent with subsequent opens
+    const body = $('panel-body');
+    if (body) body.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],
+      {duration:160,easing:'cubic-bezier(.2,.8,.2,1)'});
+  }
   const listingsRaw = await fetchListings(key);
   if (activeKey !== key) return;
   const listingsClean = listingsRaw.filter(l => !isBadSeller(l.seller));
@@ -201,7 +210,7 @@ function buildPanelHTML(item, listings, meta = {}) {
     <div class="ph-label">Median Unit Price</div>
     <div style="display:flex;align-items:center;gap:0">
       <div class="ph-median">${fmt(median)}</div>
-      <button class="copy-price-btn" onclick="copyPrice(${median})" title="Copy price">
+      <button class="copy-price-btn" onclick="copyPrice(${median}, this)" title="Copy price">
         <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3.5" y="3.5" width="6" height="6" rx="1"/><path d="M1.5 7.5V1.5h6"/></svg>
       </button>
     </div>

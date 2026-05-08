@@ -218,11 +218,11 @@ async function fetchAll(silent) {
       if (targetKey) _idle(() => openPanel(targetKey));
     }
     setSt('live', allPrices.length.toLocaleString() + ' items');
-    $('rlsb').style.display = 'none';
+    $('rlsb').classList.remove('on');
     if (!silent) toast('Loaded ' + allPrices.length.toLocaleString() + ' items');
   } catch (e) {
     setSt('error', 'Error'); toast('Failed: ' + e.message, true);
-    if (!allPrices.length) { showErr(e.message); $('rlsb').style.display = 'block'; }
+    if (!allPrices.length) { showErr(e.message); $('rlsb').classList.add('on'); }
   } finally {
     $('rBtn').classList.remove('spinning');
     if (!silent) bootHide();
