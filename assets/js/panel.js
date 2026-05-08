@@ -1,0 +1,269 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// panel.js — detail panel open/close, listings, sellers, sort, HTML builder
+// ─────────────────────────────────────────────────────────────────────────────
+
+function setPanelSort(v) { panelSort = v; renderPanelFromCtx({ partial: true }); scheduleSaveUIState(); }
+function setPanelIncludeFlagged(v) { panelIncludeFlagged = !!v; renderPanelFromCtx({ partial: true }); scheduleSaveUIState(); }
+function togglePanelSortSel() {
+  const el = $('panelSortSel'); if (!el) return;
+  const isOpen = el.classList.contains('open');
+  closeAllCSelects(isOpen ? null : 'panelSortSel');
+  el.classList.toggle('open', !isOpen);
+}
+
+// ── Panel swap animation ──
+let _panelAnimToken = 0;
+async function panelSwapAnimate(mutator) {
+  const hdr = panel?.querySelector('.panel-header'), body = $('panel-body');
+  const els = [hdr, body].filter(Boolean);
+  for (const el of els) { try { el.getAnimations().forEach(a => a.cancel()); } catch (_e) {} }
+  const token = ++_panelAnimToken;
+  const out = els.map(el => el.animate([{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: 'translateY(6px)' }], { duration: 90, easing: 'ease-out' }));
+  await Promise.all(out.map(a => a.finished.catch(() => {})));
+  if (token !== _panelAnimToken) return;
+  mutator();
+  const inn = els.map(el => el.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 140, easing: 'cubic-bezier(.2,.8,.2,1)' }));
+  await Promise.all(inn.map(a => a.finished.catch(() => {})));
+}
+
+// ── Open panel ──
+async function openPanel(key) {
+  const wasOpen = panel.classList.contains('open');
+  if (activeKey === key && wasOpen) { closePanel(); return; }
+  activeKey = key;
+  setHashItemKey(key);
+  scheduleSaveUIState();
+  markActiveSelection();
+  const item = enriched.find(r => r.rawKey === key);
+  if (!item) { closePanel(); return; }
+  panel.classList.add('open'); panelBackdrop.classList.add('on');
+  if (!wasOpen) withCGridFlip(() => appShell.classList.add('panel-open'));
+  const swap = () => {
+    $('panel-title').innerHTML = `${esc(item.displayName)}${skillTagH(item.skillTag)}`;
+    panelMeta.innerHTML = panelMetaHTML(item);
+    $('panel-body').innerHTML = panelSkeleton();
+  };
+  if (wasOpen) await panelSwapAnimate(swap); else swap();
+  const listingsRaw = await fetchListings(key);
+  if (activeKey !== key) return;
+  const listingsClean = listingsRaw.filter(l => !isBadSeller(l.seller));
+  const removed = listingsRaw.length - listingsClean.length;
+  const st = statsFromListings(listingsClean);
+  panelCtx = { key, item, listingsRaw, listingsClean, removed, samplesFromListings: st.n || 0 };
+  renderPanelFromCtx({ partial: false });
+}
+
+// ── Close panel ──
+function closePanel() {
+  panel.classList.remove('open'); panelBackdrop.classList.remove('on');
+  withCGridFlip(() => appShell.classList.remove('panel-open'));
+  activeKey = null; panelCtx = null;
+  if (panelMeta) panelMeta.innerHTML = '';
+  markActiveSelection();
+  setHashItemKey(null);
+  scheduleSaveUIState();
+}
+
+function panelSkeleton() {
+  return `<div class="panel-skel"><div class="pskel-block"></div><div class="pskel-line" style="width:60%"></div><div class="pskel-line" style="width:80%"></div><div class="pskel-line" style="width:50%"></div></div>`;
+}
+
+function panelSortLabel() {
+  return panelSort === 'price_asc' ? 'Price ↑' : panelSort === 'price_desc' ? 'Price ↓' : panelSort === 'seller' ? 'Seller rating' : 'Newest';
+}
+
+// ── Listings HTML ──
+function buildPanelListingsHTML(pd, listings) {
+  if (!listings.length) return `<div class="no-listings">No recent listings found</div>`;
+  let html = '';
+  for (const l of listings) {
+    const info = sellerRatingInfo(l.seller), cols = SELLER_COLORS[info.label] || SELLER_COLORS.Neutral;
+    const sellerBadge = info.label ? `<span class="lr-seller-badge" style="background:${cols.bg};color:${cols.color};border-color:${cols.border}">${info.label}</span>` : '';
+    const blacklistedBadge = info.isBlacklisted ? `<span class="lr-seller-badge" style="background:rgba(240,100,100,.1);color:#f06464;border-color:rgba(240,100,100,.25)">Blacklisted</span>` : '';
+    let priceClass = '';
+    if (pd.iqr_high && l.unit_price > pd.iqr_high * 1.5) priceClass = 'over';
+    else if (pd.iqr_low && l.unit_price < pd.iqr_low * 0.7) priceClass = 'under';
+    html += `<div class="listing-row">
+      <div style="min-width:0;flex:1">
+        <div style="display:flex;align-items:center;gap:4px;min-width:0;flex-wrap:wrap">
+          <span class="lr-seller">${esc(l.seller || 'Unknown')}</span>${sellerBadge}${blacklistedBadge}
+        </div>
+        ${l.count > 1 ? `<div class="lr-count">×${l.count.toLocaleString()}</div>` : ''}
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div class="lr-price ${priceClass}">${fmt(l.unit_price)}</div>
+        ${l.count > 1 ? `<div class="lr-date">total ${fmt(l.price)}</div>` : ''}
+        <div class="lr-date">${fmtT(l.timestamp)}</div>
+      </div>
+    </div>`;
+  }
+  return html;
+}
+
+// ── Top sellers HTML ──
+function buildPanelTopSellersHTML(listings) {
+  const sellerCounts = {};
+  for (const l of listings) if (l.seller) sellerCounts[l.seller] = (sellerCounts[l.seller] || 0) + 1;
+  const topSellers = Object.entries(sellerCounts).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([s]) => s);
+  if (!topSellers.length) return '';
+  let html = `<div class="psec"><div class="psec-title">Sellers of This Item</div>`;
+  for (const sellerName of topSellers) {
+    const sd = allSellers[sellerName.toLowerCase()]; if (!sd) continue;
+    const label = (sd.is_blacklisted || sd.is_flagged) ? 'Flagged' : (sd.accuracy_label || 'Neutral');
+    const cols = SELLER_COLORS[label] || SELLER_COLORS.Neutral;
+    html += `<div class="seller-rep" style="margin-bottom:8px">
+      <div class="sr-name" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+        ${esc(sd.seller)}
+        <span class="lr-seller-badge" style="background:${cols.bg};color:${cols.color};border-color:${cols.border}">${label}</span>
+        ${sd.is_blacklisted ? '<span class="lr-seller-badge" style="background:rgba(240,100,100,.1);color:#f06464;border-color:rgba(240,100,100,.25)">Blacklisted</span>' : ''}
+      </div>
+      <div class="sr-row"><span class="sr-label">Total Listings</span><span class="sr-value">${sd.total_listings?.toLocaleString() || '—'}</span></div>
+      <div class="sr-row"><span class="sr-label">Avg Markup</span><span class="sr-value">${sd.avg_markup_percent != null ? sd.avg_markup_percent.toFixed(1) + '%' : '—'}</span></div>
+      <div class="sr-row"><span class="sr-label">Overpriced Ratio</span><span class="sr-value" style="${(sd.overpriced_ratio || 0) > 30 ? 'color:var(--red)' : ''}">${sd.overpriced_ratio != null ? sd.overpriced_ratio.toFixed(1) + '%' : '—'}</span></div>
+      <div class="sr-row"><span class="sr-label">Listings for this item</span><span class="sr-value">${sellerCounts[sellerName] || '—'}</span></div>
+    </div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+// ── Panel controls update ──
+function updatePanelControls() {
+  const val = $('panelSortVal'); if (val) val.textContent = panelSortLabel();
+  const tog = $('panelFlagTog'); if (tog) tog.classList.toggle('on', !!panelIncludeFlagged);
+  const menu = $('panelSortMenu');
+  if (menu) menu.querySelectorAll('button[data-sort]').forEach(btn => btn.classList.toggle('on', btn.dataset.sort === panelSort));
+}
+
+// ── Render panel from context ──
+function renderPanelFromCtx(opts = {}) {
+  if (!panelCtx) return;
+  const { item, listingsRaw, listingsClean, removed, samplesFromListings } = panelCtx;
+  const pd = { ...item };
+  const st = statsFromListings(listingsClean);
+  if (st.n) {
+    pd.median = st.median; pd.iqr_low = st.q1; pd.iqr_high = st.q3;
+    pd.trend = trendFromListings(listingsClean);
+    pd.last_seen = listingsClean[0]?.timestamp || pd.last_seen;
+  }
+  const visible = panelIncludeFlagged ? [...listingsRaw] : [...listingsClean];
+  const sorted = sortPanelListings(visible, pd);
+  const body = $('panel-body');
+  const preserveScroll = opts.partial && body;
+  const scrollTop = preserveScroll ? body.scrollTop : 0;
+  if (opts.partial && $('panelListings') && $('panelRemovedNote') && $('panelTopSellers')) {
+    updatePanelControls();
+    const note = $('panelRemovedNote');
+    if (note) {
+      if (removed && !panelIncludeFlagged) { note.style.display = ''; note.innerHTML = `Filtered out ${removed} listing${removed === 1 ? '' : 's'} from flagged/blacklisted sellers`; }
+      else { note.style.display = 'none'; note.innerHTML = ''; }
+    }
+    $('panelListings').innerHTML = buildPanelListingsHTML(pd, sorted);
+    $('panelTopSellers').innerHTML = buildPanelTopSellersHTML(visible);
+    if (preserveScroll) body.scrollTop = scrollTop;
+    return;
+  }
+  body.innerHTML = buildPanelHTML(pd, sorted, { removed, samplesFromListings });
+  updatePanelControls();
+}
+
+// ── Sort listings ──
+function sortPanelListings(listings, pd) {
+  const out = [...listings].map(l => ({ ...l, unit_price: getUnitPrice(l), _ts: l.timestamp ? new Date(l.timestamp).getTime() : 0, _rating: sellerRatingInfo(l.seller).order }));
+  if (panelSort === 'price_asc') out.sort((a, b) => (a.unit_price || 0) - (b.unit_price || 0) || (b._ts - a._ts));
+  else if (panelSort === 'price_desc') out.sort((a, b) => (b.unit_price || 0) - (a.unit_price || 0) || (b._ts - a._ts));
+  else if (panelSort === 'seller') out.sort((a, b) => (a._rating - b._rating) || (b._ts - a._ts) || ((a.unit_price || 0) - (b.unit_price || 0)));
+  else out.sort((a, b) => b._ts - a._ts);
+  return out;
+}
+
+// ── Full panel HTML builder ──
+function buildPanelHTML(item, listings, meta = {}) {
+  const pd = item, removed = meta.removed || 0, samplesFromListings = meta.samplesFromListings || 0;
+  const nTotal = pd.samples || 0, n = nTotal > 0 ? nTotal : samplesFromListings, median = pd.median || 0;
+  const rawLow = pd.iqr_low || 0, rawHigh = pd.iqr_high || median;
+  const blend = Math.min(1, n / 50), credWidth = median * (0.30 - 0.15 * (Math.min(n, 10) / 10));
+  const credLow = Math.max(0, median - credWidth), credHigh = median + credWidth;
+  const displayLow = Math.round(rawLow * blend + credLow * (1 - blend));
+  const displayHigh = Math.round(rawHigh * blend + credHigh * (1 - blend));
+  const iqrSpan = displayHigh - displayLow, rangeMax = displayHigh * 1.2 || 1;
+  const lowPct = Math.max(0, Math.min(100, (displayLow / rangeMax) * 100));
+  const highPct = Math.max(0, Math.min(100, (displayHigh / rangeMax) * 100));
+  const medPct = Math.max(0, Math.min(100, (median / rangeMax) * 100));
+  const fillW = Math.max(0, highPct - lowPct);
+  const rangeNote = n >= 30 ? '' :
+    n >= 10 ? `<div style="font-size:10px;color:var(--text3);font-family:'Space Mono',monospace;margin-top:5px">⚠ Range estimated — fewer than 30 samples</div>` :
+    n >= 3  ? `<div style="font-size:10px;color:var(--gold2);font-family:'Space Mono',monospace;margin-top:5px">⚠ Low sample count — range is approximate</div>` :
+               `<div style="font-size:10px;color:var(--red);font-family:'Space Mono',monospace;margin-top:5px">⚠ Very few samples — treat range as indicative only</div>`;
+  let html = '';
+  // Price hero
+  html += `<div class="price-hero">
+    <div class="ph-label">Median Unit Price</div>
+    <div style="display:flex;align-items:center;gap:0">
+      <div class="ph-median">${fmt(median)}</div>
+      <button class="copy-price-btn" onclick="copyPrice(${median})" title="Copy price">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3.5" y="3.5" width="6" height="6" rx="1"/><path d="M1.5 7.5V1.5h6"/></svg>
+      </button>
+    </div>
+    <div class="iqr-bar-wrap">
+      <div class="iqr-bar-bg">
+        <div class="iqr-bar-fill" style="left:${lowPct}%;width:${fillW}%"></div>
+        <div class="iqr-bar-median" style="left:${medPct}%"></div>
+      </div>
+      <div class="iqr-labels"><span>${fmt(displayLow)}</span><span>${fmt(displayHigh)}</span></div>
+    </div>
+    ${rangeNote}
+    <div class="ph-range" style="margin-top:.75rem">
+      <div class="ph-range-item"><div class="ph-rl">${n >= 10 ? 'IQR Low' : 'Est. Low'}</div><div class="ph-rv">${fmt(displayLow)}</div></div>
+      <div class="ph-range-item"><div class="ph-rl">${n >= 10 ? 'IQR High' : 'Est. High'}</div><div class="ph-rv">${fmt(displayHigh)}</div></div>
+      <div class="ph-range-item"><div class="ph-rl">Spread</div><div class="ph-rv">${fmt(iqrSpan)}</div></div>
+    </div>
+  </div>`;
+  // Meta pills row 1
+  html += `<div class="meta-pills">
+    <div class="mpill"><span class="mplabel">Confidence</span> <span class="conf-b ${confCls(pd.confidence)}" style="padding:1px 5px">■ ${pd.confidence || '—'}</span></div>
+    <div class="mpill"><span class="mplabel">Trend</span> ${trendH(pd.trend)}</div>
+    <div class="mpill"><span class="mplabel">Samples</span> ${pd.samples?.toLocaleString() || '—'}</div>
+    ${pd.tier ? `<div class="mpill"><span class="mplabel">Tier</span> ${tierBadge(pd.tier)}</div>` : ''}
+    <div class="mpill"><span class="mplabel">Last seen</span> ${fmtT(pd.last_seen)}</div>
+  </div>`;
+  // Meta pills row 2 — category + fav + compare
+  html += `<div class="meta-pills">
+    ${catBadge(pd.category)}
+    ${pd.setName ? `<div class="mpill"><span class="mplabel">Set</span> ${esc(pd.setName)}</div>` : ''}
+    <button type="button" class="mpill mpill-btn ${isFav(pd.rawKey) ? 'on' : ''}" data-act="fav" data-key="${esc(pd.rawKey)}" title="Toggle favorite" id="panelFavBtn">★ Favorite</button>
+    <button type="button" class="mpill mpill-btn ${compareKeys.includes(pd.rawKey) ? 'on' : ''}" data-act="cmp" data-key="${esc(pd.rawKey)}" title="Toggle compare" id="panelCmpBtn">⇄ Compare</button>
+  </div>`;
+  // Recent listings section
+  html += `<div class="psec"><div class="psec-title">Recent Listings</div>`;
+  html += `<div class="pctrl">
+    <span class="pcl">Sort</span>
+    <div class="cselect" id="panelSortSel">
+      <button type="button" class="cselect-btn" onclick="togglePanelSortSel()">
+        <span class="cval" id="panelSortVal">${panelSortLabel()}</span><span class="car">▾</span>
+      </button>
+      <div class="cselect-menu" id="panelSortMenu">
+        <button type="button" class="copt ${panelSort === 'newest' ? 'on' : ''}" data-sort="newest" onclick="setPanelSort('newest');closeAllCSelects();">Newest</button>
+        <button type="button" class="copt ${panelSort === 'price_asc' ? 'on' : ''}" data-sort="price_asc" onclick="setPanelSort('price_asc');closeAllCSelects();">Price ↑</button>
+        <button type="button" class="copt ${panelSort === 'price_desc' ? 'on' : ''}" data-sort="price_desc" onclick="setPanelSort('price_desc');closeAllCSelects();">Price ↓</button>
+        <button type="button" class="copt ${panelSort === 'seller' ? 'on' : ''}" data-sort="seller" onclick="setPanelSort('seller');closeAllCSelects();">Seller rating</button>
+      </div>
+    </div>
+    <button type="button" class="ctoggle ${panelIncludeFlagged ? 'on' : ''}" id="panelFlagTog" onclick="setPanelIncludeFlagged(!panelIncludeFlagged)">
+      <span class="ctog" aria-hidden="true"></span>Include flagged
+    </button>
+  </div>`;
+  if (removed && !panelIncludeFlagged) {
+    html += `<div id="panelRemovedNote" style="font-size:10px;color:var(--text3);font-family:'Space Mono',monospace;margin:-4px 0 10px">Filtered out ${removed} listing${removed === 1 ? '' : 's'} from flagged/blacklisted sellers</div>`;
+  } else {
+    html += `<div id="panelRemovedNote" style="display:none"></div>`;
+  }
+  html += `<div id="panelListings">${buildPanelListingsHTML(pd, listings)}</div></div>`;
+  html += `<div id="panelTopSellers">${buildPanelTopSellersHTML(listings)}</div>`;
+  // Panel scroll-to-top
+  html += `<button class="panel-scroll-top" onclick="$('panel-body').scrollTo({top:0,behavior:'smooth'})">
+    <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="2,7 5.5,3.5 9,7"/></svg>
+    Back to top
+  </button>`;
+  return html;
+}
