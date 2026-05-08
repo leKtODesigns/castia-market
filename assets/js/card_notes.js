@@ -1752,5 +1752,15 @@
         '\u25a0 1.5% Smelting Money Boost',
       ],
     },
+    'mistle toes':{
+      type:'desc',
+      lines:[
+        'Protection 5',
+        'Feather Falling 4',
+        'Depth Strider 3',
+        'Unbreakable',
+        '\u25a0 Zoomies 1',
+      ],
+    },
   };
 })();

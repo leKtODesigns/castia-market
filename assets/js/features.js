@@ -342,6 +342,8 @@ function scheduleRefresh() {
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden && Date.now() >= nextRefresh) { fetchAll(true); nextRefresh = Date.now() + REFRESH_MS; }
 });
+// Update compare tooltip after auto-refresh
+setInterval(() => { if (compareKeys.length) updateCmpTooltip(); }, 1000);
 
 // ── Scroll-to-top button ──
 const scrollTopBtn = $('scrollTopBtn');
@@ -359,7 +361,14 @@ function updateCmpTooltip() {
   } else {
     tip.innerHTML = compareKeys.map(k => {
       const r = enriched.find(e => e.rawKey === k);
-      return `<div class="cmp-tip-item">${esc(r ? r.displayName : k)}</div>`;
+      if (!r) return `<div class="cmp-tip-item">${esc(k)}</div>`;
+
+      // Use displayName directly from enriched data (already formatted with titleCase and tier stars)
+      // Just add skill tag if present (same logic as in UI views)
+      let displayName = r.displayName || k;
+      let skillTagHTML = skillTagH(r.skillTag);
+
+      return `<div class="cmp-tip-item">${esc(displayName)}${skillTagHTML}</div>`;
     }).join('');
   }
 }
@@ -434,7 +443,7 @@ applyLoadedUIState();
 fetchAll(false);
 scheduleRefresh();
 setInterval(() => { if (lastLoaded) $('sUpd').textContent = fmtT(lastLoaded); }, 30000);
-// Init compare tooltip
+// Init compare tooltip after data is loaded
 _idle(() => updateCmpTooltip());
 updateOverlayUI();
 

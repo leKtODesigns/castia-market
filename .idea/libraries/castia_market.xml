@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="castia-market">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/castia-market.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

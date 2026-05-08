@@ -51,7 +51,7 @@ const RESOURCES = new Set([
 
 const UTILITY = new Set([
   'quest crystal','ore seed','spawner spinner','uranium nugget','tracking oil',
-  'mystery egg','glass cutter','begrimed item','historical codex','liquid exp',
+  'hostile mystery egg', 'passive mystery egg','glass cutter','begrimed item','historical codex','liquid exp',
   'blessing dust','mob catcher','essence','rename kit','repair oil',
   'the grand scrambler','elytra','saddle','lead','name tag',
   'mushroom','mystic mushroom',
