@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Castia Market — Price Tracker</title>
   <meta name="description" content="Live auction house price data for the Castia server, powered by CastiaScrapper." />
   <meta name="theme-color" content="#0b0d12" />
@@ -15,6 +15,16 @@
   <link rel="stylesheet" href="./assets/css/layout.css" />
   <link rel="stylesheet" href="./assets/css/components.css" />
   <link rel="stylesheet" href="./assets/css/features.css" />
+  <style>
+    /* Safe area insets for notched/rounded phones */
+    @supports (padding: max(0px)) {
+      header { padding-left: max(1.25rem, env(safe-area-inset-left)); padding-right: max(1.25rem, env(safe-area-inset-right)); }
+      main { padding-left: max(.75rem, env(safe-area-inset-left)); padding-right: max(.75rem, env(safe-area-inset-right)); }
+      #detail-panel { padding-bottom: env(safe-area-inset-bottom); }
+      footer { padding-bottom: max(1.25rem, env(safe-area-inset-bottom)); }
+      #toast { bottom: max(1.25rem, env(safe-area-inset-bottom)); right: max(1.25rem, env(safe-area-inset-right)); }
+    }
+  </style>
 
   <!-- Scripts (load order matters: constants → state → data → ui → panel → features) -->
   <script defer src="./assets/js/card_notes.js"></script>
@@ -30,7 +40,7 @@
 <header>
   <a class="logo" href="#">
     <div class="logo-mark">⚔</div>
-    CASTIA MARKET
+    <span class="logo-text">CASTIA MARKET</span>
   </a>
   <div class="header-right">
     <div id="sync-status">

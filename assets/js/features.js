@@ -345,24 +345,29 @@ function positionRowTip(e) {
 }
 function hideRowTip() { const tip = getRowTip(); tip.classList.remove('on'); }
 
+// Row/card hover tooltips — disabled on touch/coarse-pointer devices
+const _isTouchPrimary = () => window.matchMedia('(pointer:coarse)').matches;
+
 tbody.addEventListener('mouseover', e => {
+  if (_isTouchPrimary()) return;
   const tr = e.target.closest('tr[data-key]'); if (!tr) return;
   const r = enriched.find(x => x.rawKey === tr.dataset.key); if (!r) return;
   showRowTip(e, r);
 });
-tbody.addEventListener('mousemove', e => { positionRowTip(e); });
+tbody.addEventListener('mousemove', e => { if (_isTouchPrimary()) return; positionRowTip(e); });
 tbody.addEventListener('mouseout', e => { if (!e.target.closest('tr[data-key]')) hideRowTip(); });
 tbody.addEventListener('mouseleave', hideRowTip);
 
 // Card view tooltip
 cgrid.addEventListener('mouseover', e => {
+  if (_isTouchPrimary()) return;
   const card = e.target.closest('.pcard[data-key]'); if (!card) return;
   // Don't show if hovering action buttons
   if (e.target.closest('.ccard-actions')) return;
   const r = enriched.find(x => x.rawKey === card.dataset.key); if (!r) return;
   showRowTip(e, r);
 });
-cgrid.addEventListener('mousemove', e => { positionRowTip(e); });
+cgrid.addEventListener('mousemove', e => { if (_isTouchPrimary()) return; positionRowTip(e); });
 cgrid.addEventListener('mouseout', e => { if (!e.target.closest('.pcard[data-key]')) hideRowTip(); });
 cgrid.addEventListener('mouseleave', hideRowTip);
 
