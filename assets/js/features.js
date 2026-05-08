@@ -231,15 +231,36 @@ panel.addEventListener('click', e => {
   if (act.dataset.act === 'cmp') { e.preventDefault(); toggleCompare(key); return; }
 });
 
-if (compareModal) {
-  compareModal.addEventListener('click', e => {
-    const act = e.target.closest('[data-act]'); if (!act) return;
-    const key = act.dataset.key;
-    if (act.dataset.act === 'fav')        { e.preventDefault(); toggleFavorite(key); openCompare(); return; }
-    if (act.dataset.act === 'cmp-open')   { e.preventDefault(); closeCompare(); openPanel(key); return; }
-    if (act.dataset.act === 'cmp-remove') { e.preventDefault(); toggleCompare(key); openCompare(); return; }
-  });
-}
+  if (compareModal) {
+    compareModal.addEventListener('click', e => {
+      const act = e.target.closest('[data-act]'); if (!act) return;
+      const key = act.dataset.key;
+      if (act.dataset.act === 'fav') {
+        e.preventDefault();
+        toggleFavorite(key);
+        // Don't call openCompare() - just update the modal state
+        if (compareModal.classList.contains('on')) {
+          updateCmpTooltip();
+        }
+        return;
+      }
+      if (act.dataset.act === 'cmp-open')   { e.preventDefault(); closeCompare(); openPanel(key); return; }
+      if (act.dataset.act === 'cmp-remove') {
+        e.preventDefault();
+        // Remove the item with fade-out animation
+        const item = e.target.closest('.cmp-item');
+        if (item) {
+          item.style.opacity = '0';
+          item.style.transform = 'translateY(-8px)';
+          setTimeout(() => {
+            toggleCompare(key);
+            openCompare();
+          }, 200);
+        }
+        return;
+      }
+    });
+  }
 
 // ── Search input events ──
 qEl.addEventListener('input', () => {

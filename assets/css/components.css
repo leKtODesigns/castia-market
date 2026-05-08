@@ -194,22 +194,41 @@ td{padding:10px 12px;vertical-align:middle}
   font-size:12px;line-height:1.35;
   white-space:normal; /* allow wrapping on cards */
   word-break:break-word;
-  display:block;width:100%;order:1
+  display:block;width:100%;order:1;
+  margin-right:4px;
 }
-.ckey .stag{order:2;}
+.ckey .stag{
+  order:2;
+  margin-left:auto;
+}
 @media(min-width:480px){.ckey{font-size:13px}.ckey .iname-txt{font-size:13px}}
 
 /* Card action buttons: stacked column top-right */
 .ccard-actions{
   position:absolute;
   top:8px;
-  right:12px;
+  right:calc(10px + 128px + 12px);
   display:flex;
   flex-direction:column;
   gap:4px;
   align-items:center;
   justify-content:flex-start;
   z-index:3;
+}
+@media(min-width:480px){
+  .ccard-actions{
+    right:calc(10px + 100px + 12px);
+  }
+}
+@media(min-width:600px){
+  .ccard-actions{
+    right:calc(14px + 128px + 12px);
+  }
+}
+@media(max-width:360px){
+  .ccard-actions{
+    right:calc(10px + 84px + 12px);
+  }
 }
 
 /* Item image */
