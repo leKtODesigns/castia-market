@@ -49,7 +49,12 @@
 }
 
 /* ── Item name + skill tags ── */
-.iname-wrap{display:flex;align-items:center;gap:6px;min-width:0}
+.iname-wrap{
+  display:table-cell;
+  align-items:center;
+  gap:6px;
+  min-width:0
+}
 .iname-txt{
   min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   /* Name always has visual priority — never let badges push it out */
@@ -63,9 +68,7 @@
 /* Ensure the skill tag is secondary to item name */
 .iname-wrap .stag{
   order:2;
-
-  margin-left:2px;
-
+  margin-left:8px;
   position:relative;
   top:-1px;
 }
@@ -207,28 +210,13 @@ td{padding:10px 12px;vertical-align:middle}
 .ccard-actions{
   position:absolute;
   top:8px;
-  right:calc(10px + 128px + 12px);
+  right:8px;
   display:flex;
   flex-direction:column;
   gap:4px;
   align-items:center;
   justify-content:flex-start;
   z-index:3;
-}
-@media(min-width:480px){
-  .ccard-actions{
-    right:calc(10px + 100px + 12px);
-  }
-}
-@media(min-width:600px){
-  .ccard-actions{
-    right:calc(14px + 128px + 12px);
-  }
-}
-@media(max-width:360px){
-  .ccard-actions{
-    right:calc(10px + 84px + 12px);
-  }
 }
 
 /* Item image */

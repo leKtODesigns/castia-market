@@ -227,6 +227,10 @@ tbody.rows-animating tr:nth-child(n+11){animation-delay:145ms}
 .cmp-item:nth-child(3){animation-delay:.18s}
 .cmp-item-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)}
 .cmp-item-name{font-size:13px;font-weight:600;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.cmp-item-name .stag {
+  margin-left: 8px;
+  top: -1px;
+}
 .cmp-item-actions{display:flex;gap:5px;flex-shrink:0}
 .cmp-price-row{display:flex;align-items:center;gap:6px;margin:8px 0 4px;}
 .cmp-price{font-family:'Space Mono',monospace;font-size:clamp(18px,5vw,22px);font-weight:700;color:var(--gold);}
