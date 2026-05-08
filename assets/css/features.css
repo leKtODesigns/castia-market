@@ -71,6 +71,14 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible){outline:none;}
 @media(hover:hover){#scrollTopBtn:hover{border-color:var(--gold3);color:var(--gold);background:var(--gold-bg);}}
 #scrollTopBtn:active{transform:translateY(0) scale(.92);}
 
+/* Prevent accidental “scroll to top” while overlays are open */
+body.overlay-open #scrollTopBtn{
+  display:none !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+  transform:translateY(8px) !important;
+}
+
 /* ── Page-level fade-in on load ── */
 .stats-bar{animation:fadeUp .35s ease both;}
 .ctrl-row{animation:fadeUp .35s .05s ease both;}
@@ -120,8 +128,8 @@ tbody.rows-animating tr:nth-child(n+11){animation-delay:145ms}
 .boot-title{letter-spacing:.18em;}
 
 /* ── Compare tooltip — desktop hover only ── */
-.cmp-tip{position:absolute;bottom:calc(100% + 8px);right:0;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);padding:8px 10px;min-width:180px;max-width:260px;box-shadow:0 8px 24px rgba(0,0,0,.35);font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);display:none;z-index:1200;pointer-events:none;animation:tipIn .15s cubic-bezier(.2,.8,.2,1) both;}
-.cmp-tip::after{content:'';position:absolute;bottom:-5px;right:14px;width:8px;height:8px;background:var(--bg3);border-right:1px solid var(--border2);border-bottom:1px solid var(--border2);transform:rotate(45deg);}
+.cmp-tip{position:absolute;top:calc(100% + 8px);right:0;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);padding:8px 10px;min-width:180px;max-width:260px;box-shadow:0 8px 24px rgba(0,0,0,.35);font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);display:none;z-index:1200;pointer-events:none;animation:tipIn .15s cubic-bezier(.2,.8,.2,1) both;}
+.cmp-tip::after{content:'';position:absolute;top:-5px;right:14px;width:8px;height:8px;background:var(--bg3);border-right:1px solid var(--border2);border-bottom:1px solid var(--border2);transform:rotate(45deg);}
 @media(hover:hover){
   #cmpBtn:hover .cmp-tip,#cmpBtn:focus-visible .cmp-tip{display:block;}
 }
@@ -248,4 +256,7 @@ tbody.rows-animating tr:nth-child(n+11){animation-delay:145ms}
 @media(hover:hover){.cmp-star:hover{color:var(--blue);border-color:rgba(91,163,245,.4);background:var(--blue-bg);transform:scale(1.15);}}
 .cmp-star.on{color:var(--blue);border-color:rgba(91,163,245,.5);background:var(--blue-bg);}
 .cmp-star:active{transform:scale(.88);}
-.ccard-actions{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+
+/* Keep card actions stacked top-right (desktop + mobile) */
+.ccard-actions{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;}
+

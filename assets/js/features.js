@@ -2,6 +2,13 @@
 // features.js — favorites, compare, data saver, events, keyboard, auto-refresh, boot
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ── Overlay UI state (panel / compare) ──
+function updateOverlayUI() {
+  const panelOpen = !!(panel && panel.classList.contains('open'));
+  const cmpOpen = !!(compareModal && compareModal.classList.contains('on'));
+  document.body.classList.toggle('overlay-open', panelOpen || cmpOpen);
+}
+
 // ── Favorites ──
 function isFav(key) { return favSet.has(String(key || '')); }
 
@@ -27,6 +34,10 @@ function toggleFavorite(key) {
   renderPanelFromCtx({ partial: true });
   // When in favOnly mode, immediately remove the item from the view with FLIP
   if (favOnly) withCGridFlip(() => render());
+  // Update compare modal if open - only update button states, don't reopen
+  if (compareModal && compareModal.classList.contains('on')) {
+    updateCmpTooltip();
+  }
 }
 
 function toggleFavOnly() {
@@ -73,6 +84,10 @@ function toggleCompare(key) {
   // Live-update panel compare pill if open
   const panelCmpBtn = $('panelCmpBtn');
   if (panelCmpBtn) panelCmpBtn.classList.toggle('on', inCmp);
+  // Update compare modal if open - only update button states, don't reopen
+  if (compareModal && compareModal.classList.contains('on')) {
+    openCompare();
+  }
 }
 
 function updateTopButtons() {
@@ -114,15 +129,15 @@ function openCompare() {
       let metaHTML = '';
       if (hasImg || hasNote) {
         const imgHTML = hasImg
-          ? `<div class="cmp-meta-img">${imageHTMLForRow(r, '', { eager: true, fetchPriority: 'high' })}</div>`
-          : '';
+            ? `<div class="cmp-meta-img">${imageHTMLForRow(r, '', { eager: true, fetchPriority: 'high' })}</div>`
+            : '';
         const noteHTML = hasNote
-          ? `<div class="cmp-meta-note">${note.lines.map(line => {
+            ? `<div class="cmp-meta-note">${note.lines.map(line => {
               const s = String(line || '');
               if (s.trim().startsWith('\u25a0')) return `<div class="cmp-meta-line"><span class="cmp-meta-diamond"></span><span>${esc(s.replace(/^\u25a0\s*/, ''))}</span></div>`;
               return `<div class="cmp-meta-line"><span class="cmp-meta-dot"></span><span>${esc(s)}</span></div>`;
             }).join('')}</div>`
-          : '';
+            : '';
         metaHTML = `<div class="cmp-meta">${imgHTML}${noteHTML}</div>`;
       }
       return `<div class="cmp-item">
@@ -161,12 +176,14 @@ function openCompare() {
   // Trigger fresh CSS animation on the card each open
   const card = compareModal.querySelector('.cmp-card');
   if (card) { card.style.animation = 'none'; card.offsetWidth; card.style.animation = ''; }
+  updateOverlayUI();
 }
 
 function closeCompare() {
   if (!compareModal) return;
   compareModal.classList.remove('on');
   compareModal.setAttribute('aria-hidden', 'true');
+  updateOverlayUI();
 }
 
 // Copy price variant for compare modal — targets the clicked button directly
@@ -250,6 +267,14 @@ confEl.addEventListener('change', applyFilters);
 tierEl.addEventListener('change', async () => {
   if (tierEl.value && tierEl.value !== '0') await ensurePrismaticTiers();
   applyFilters();
+});
+
+// Close suggestions when interacting with other controls (prevents overlap / stacking)
+['catEl', 'confEl', 'tierEl'].forEach(id => {
+  const el = $(id);
+  if (!el) return;
+  el.addEventListener('focus', hideSugg);
+  el.addEventListener('click', hideSugg);
 });
 
 // ── Scroll persistence ──
@@ -390,3 +415,5 @@ scheduleRefresh();
 setInterval(() => { if (lastLoaded) $('sUpd').textContent = fmtT(lastLoaded); }, 30000);
 // Init compare tooltip
 _idle(() => updateCmpTooltip());
+updateOverlayUI();
+
