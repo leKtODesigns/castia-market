@@ -1,13 +1,16 @@
 # Changelog
 All notable changes to this project will be documented here.
 
-## [2026-05-10] - unreleased
+## [2026-05-10] - released
 
 ### Added
 - New "Fish" category with 40+ fish items including anthias, blue eel, salmon, tropical fish, etc.
 - Support for multiple image formats (PNG, GIF, WEBP) with automatic fallback
 - New resources: ancient debris, legendary/epic/rare/common essence, and more
 - New utility items: armor trims, tracking oils, skill-specific mushrooms, and ore seeds
+- Detailed descriptions for Christmas Cap variants (mining, woodcutting, hunting, farming, fishing, smelting)
+- Descriptions for utility items (e.g., Begrimed Item, Blessing Dust, Tracking Oils, Quest Crystals, Ore Seeds, Mushrooms, Glass Cutter, Historical Codex, Mob Catcher, Rename Kit, Repair Oil, Echo Shard, Essences)
+- Comprehensive enchantment lists for set gear (e.g., Prismatic, Daydream, Eldritch, Halgrabind, Elven, Erphis, Llanakin, Shoopon, Athanasia, Bogmath, Curtana, Kayran, Malediction, Oceanis, Phezar, Saprophyte, Vurgohk, Azertuan, Hulia, Igru, Oldus)
 
 ### Changed
 - Improved image loading with existence checking to avoid 404 errors

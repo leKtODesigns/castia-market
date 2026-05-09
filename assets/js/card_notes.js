@@ -1743,6 +1743,51 @@
       lines:['Luck of the Sea 4','Lure 5','Unbreaking 6','Mending'],
     },
     // Unique relic (skill-variant example)
+    'christmas cap [mining]':{
+      type:'desc',
+      lines:[
+        'Protection 4',
+        'Unbreakable',
+        '\u25a0 2.5% Mining Exp Boost',
+        '\u25a0 1.5% Mining Money Boost',
+      ],
+    },
+    'christmas cap [woodcutting]':{
+      type:'desc',
+      lines:[
+        'Protection 4',
+        'Unbreakable',
+        '\u25a0 2.5% Woodcutting Exp Boost',
+        '\u25a0 1.5% Woodcutting Money Boost',
+      ],
+    },
+    'christmas cap [hunting]':{
+      type:'desc',
+      lines:[
+        'Protection 4',
+        'Unbreakable',
+        '\u25a0 2.5% Hunting Exp Boost',
+        '\u25a0 1.5% Hunting Money Boost',
+      ],
+    },
+    'christmas cap [farming]':{
+      type:'desc',
+      lines:[
+        'Protection 4',
+        'Unbreakable',
+        '\u25a0 2.5% Farming Exp Boost',
+        '\u25a0 1.5% Farming Money Boost',
+      ],
+    },
+    'christmas cap [fishing]':{
+      type:'desc',
+      lines:[
+        'Protection 4',
+        'Unbreakable',
+        '\u25a0 2.5% Fishing Exp Boost',
+        '\u25a0 1.5% Fishing Money Boost',
+      ],
+    },
     'christmas cap [smelting]':{
       type:'desc',
       lines:[
@@ -1760,6 +1805,197 @@
         'Depth Strider 3',
         'Unbreakable',
         '\u25a0 Zoomies 1',
+      ],
+    },
+    // Utility Items
+    'begrimed item':{
+      type:'desc',
+      lines:[
+        '\u25a0 Can be combined with a Historical Codex to receive a random relic.'
+      ],
+    },
+    'blessing dust (1%)':{
+      type:'desc',
+      lines:[
+        '\u25a0 Can be combined with a Runestone to increase it\'s success rate by 1%.'
+      ],
+    },
+    'blessing dust (2%)':{
+      type:'desc',
+      lines:[
+        '\u25a0 Can be combined with a Runestone to increase it\'s success rate by 2%.'
+      ],
+    },
+    'blessing dust (3%)':{
+      type:'desc',
+      lines:[
+        '\u25a0 Can be combined with a Runestone to increase it\'s success rate by 3%.'
+      ],
+    },
+    'blessing dust (4%)':{
+      type:'desc',
+      lines:[
+        '\u25a0 Can be combined with a Runestone to increase it\'s success rate by 4%.'
+      ],
+    },
+    'blessing dust (5%)':{
+      type:'desc',
+      lines:[
+        '\u25a0 Can be combined with a Runestone to increase it\'s success rate by 5%.'
+      ],
+    },
+    'block tracking oil':{
+      type:'desc',
+      lines:[
+        '\u25a0 Tracking Oils can be applied by dragging and dropping one onto an applicable item.',
+        '\u25a0 Block Tracking Oil tracks any time a block is broken by the selected tool, and can be applied to all pickaxes, axes, shovels, hoes and shears.'
+      ],
+    },
+    'fish tracking oil':{
+      type:'desc',
+      lines:[
+        '\u25a0 Tracking Oils can be applied by dragging and dropping one onto an applicable item.',
+        '\u25a0 Fish Tracking Oil tracks each time a fish is caught by a fishing rod.'
+      ],
+    },
+    'kill tracking oil':{
+      type:'desc',
+      lines:[
+        '\u25a0 Tracking Oils can be applied by dragging and dropping one onto an applicable item.',
+        '\u25a0 Kill Tracking Oil tracks each kill made by the selected tool, they can be applied to swords, axes, bows, crossbows and tridents.'
+      ],
+    },
+    'elite quest crystal':{
+      type:'desc',
+      lines:[
+        '\u25a0 Quest Crystals can be redeemed at the Quest Merchant for rewards.'
+      ],
+    },
+    'quest crystal':{
+      type:'desc',
+      lines:[
+        '\u25a0 Quest Crystals can be redeemed at the Quest Merchant for rewards.'
+      ],
+    },
+    'coal ore seed':{type:'desc', lines:['\u25a0 When placed on Endstone in the End Dimension spawns a random amount of Coal Ore'],},
+    'copper ore seed':{type:'desc', lines:['\u25a0 When placed on Endstone in the End Dimension spawns a random amount of Copper Ore'],},
+    'diamond ore seed':{type:'desc', lines:['\u25a0 When placed on Endstone in the End Dimension spawns a random amount of Diamond Ore'],},
+    'emerald ore seed':{type:'desc', lines:['\u25a0 When placed on Endstone in the End Dimension spawns a random amount of Emerald Ore'],},
+    'gold ore seed':{type:'desc', lines:['\u25a0 When placed on Endstone in the End Dimension spawns a random amount of Gold Ore'],},
+    'iron ore seed':{type:'desc', lines:['\u25a0 When placed on Endstone in the End Dimension spawns a random amount of Iron Ore'],},
+    'lapis ore seed':{type:'desc', lines:['\u25a0 When placed on Endstone in the End Dimension spawns a random amount of Lapis Ore'],},
+    'redstone ore seed':{type:'desc', lines:['\u25a0 When placed on Endstone in the End Dimension spawns a random amount of Redstone Ore'],},
+    'mystic mushroom':{
+      type:'desc',
+      lines:[
+        '\u25a0 A Mystic Mushroom can be opened to reward a player with a random Skill Mushroom.',
+        '\u25a0 These can be consumed to quickly give a small boost to a player\'s Skill.'
+      ],
+    },
+    'arcane mushroom':{type:'desc',lines:['\u25a0 When consumed, instantly grants 2500xp for the Arcane skill.'],},
+    'farming mushroom':{type:'desc',lines:['\u25a0 When consumed, instantly grants 2500xp for the Farming skill.'],},
+    'fishing mushroom':{type:'desc',lines:['\u25a0 When consumed, instantly grants 2500xp for the Fishing skill.'],},
+    'hunting mushroom':{type:'desc',lines:['\u25a0 When consumed, instantly grants 2500xp for the Hunting skill.'],},
+    'mining mushroom':{type:'desc',lines:['\u25a0 When consumed, instantly grants 2500xp for the Mining skill.'],},
+    'smelting mushroom':{type:'desc',lines:['\u25a0 When consumed, instantly grants 2500xp for the Smelting skill.'],},
+    'woodcutting mushroom':{type:'desc',lines:['\u25a0 When consumed, instantly grants 2500xp for the Woodcutting skill.'],},
+    'glass cutter':{
+      type:'desc',
+      lines:[
+        '\u25a0 The Glass Cutter is a craftable tool that can be used to instantly break glass & froglights.'
+      ],
+    },
+    'historical codex':{
+      type:'desc',
+      lines:[
+        '\u25a0 Can be combined with a Begrimed Item to receive a random relic.'
+      ],
+    },
+    'hostile mystery egg':{
+      type:'desc',
+      lines:[
+        '\u25a0 When consumed grants the player a random hostile mob spawn egg.'
+      ],
+    },
+    'passive mystery egg':{
+      type:'desc',
+      lines:[
+        '\u25a0 When consumed grants the player a random passive mob spawn egg.'
+      ],
+    },
+    'liquid exp':{
+      type:'desc',
+      lines:[
+        '\u25a0 When consumed grants the player 1000 experience points.',
+        '\u25a0 Can be created by right clicking an enchanting table with an empty glass bottle.',
+      ],
+    },
+    'mob catcher':{
+      type:'desc',
+      lines:[
+        '\u25a0 Mob Catchers are items that can be used to turn any passive mob into a spawn egg.'
+      ],
+    },
+    'rename kit':{
+      type:'desc',
+      lines:[
+        '\u25a0 Renames randomly generated Relic names.'
+      ],
+    },
+    'repair oil':{
+      type:'desc',
+      lines:[
+        '\u25a0 When applied to any item with durability, it will instantly repair the item.'
+      ],
+    },
+    'spawner spinner':{
+      type:'desc',
+      lines:[
+        '\u25a0 Spawner Spinners are rare items that can be right clicked to give a random spawner block.'
+      ],
+    },
+    // Resources
+    'echo shard':{
+      type:'desc',
+      lines:[
+        '\u25a0 Can be used to craft Tracking Oils'
+      ],
+    },
+    'common essence':{
+      type:'desc',
+      lines:[
+        '\u25a0  When consumed, grants the player a random Common relic.'
+      ],
+    },
+    'rare essence':{
+      type:'desc',
+      lines:[
+        '\u25a0  When consumed, grants the player a random Rare relic.'
+      ],
+    },
+    'epic essence':{
+      type:'desc',
+      lines:[
+        '\u25a0  When consumed, grants the player a random Epic relic.'
+      ],
+    },
+    'legendary essence':{
+      type:'desc',
+      lines:[
+        '\u25a0  When consumed, grants the player a random Legendary relic.'
+      ],
+    },
+    'mithril essence':{
+      type:'desc',
+      lines:[
+        '\u25a0  When consumed, grants the player a random Mithril relic.'
+      ],
+    },
+    // Placeholder
+    'placeholder':{
+      type:'desc',
+      lines:[
+        '\u25a0 '
       ],
     },
   };
