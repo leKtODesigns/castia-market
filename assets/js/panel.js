@@ -178,7 +178,8 @@ function renderPanelFromCtx(opts = {}) {
   const pd = { ...item };
   const st = statsFromListings(listingsClean);
   if (st.n) {
-    pd.median = st.median; pd.iqr_low = st.q1; pd.iqr_high = st.q3;
+    // Keep database median — only update range, trend, last_seen from live listings
+    pd.iqr_low = st.q1; pd.iqr_high = st.q3;
     pd.trend = trendFromListings(listingsClean);
     pd.last_seen = listingsClean[0]?.timestamp || pd.last_seen;
   }

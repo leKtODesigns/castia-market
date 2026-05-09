@@ -299,65 +299,92 @@ function renderTbl(rows) {
 }
 
 // ── Image helpers ──
+const IMAGE_EXTS = ['png', 'gif', 'webp'];
+
+// Cache: path → true (exists) / false (404), so we never double-probe
+const _imgExistsCache = new Map();
+
+async function findExistingImagePath(paths) {
+    for (const path of paths) {
+        if (_imgExistsCache.has(path)) {
+            if (_imgExistsCache.get(path)) return path;
+            continue;
+        }
+        try {
+            const res = await fetch(path, { method: 'HEAD' });
+            const ok = res.ok;
+            _imgExistsCache.set(path, ok);
+            if (ok) return path;
+        } catch (_e) {
+            _imgExistsCache.set(path, false);
+        }
+    }
+    return './assets/images/items/_placeholder.svg';
+}
+
 function imageSlugFromRawKey(rawKey) {
-  return String(rawKey || '').replace(/\|t[123]$/i, '').replace(/\s*\[[^\]]+\]\s*$/, '').trim().toLowerCase()
-      .replace(/&/g, 'and').replace(/['"]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 120) || 'unknown';
+  return String(rawKey || '').replace(/\|t[123]$/i, '').replace(/\s*\[[^\]]+\]\s*$/, '').replace(/\s*\([\d.]+%\)\s*$/, '').trim().toLowerCase()
+      .replace(/&/g, 'and').replace(/['"]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').replace(/-(?:\d+|i{1,3}|iv|vi{0,3}|ix)$/, '').slice(0, 120) || 'unknown';
 }
 function slugifyText(txt) {
-  return String(txt || '').trim().toLowerCase()
-      .replace(/&/g, 'and').replace(/['"]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'unknown';
+    return String(txt || '').trim().toLowerCase()
+        .replace(/&/g, 'and').replace(/['"]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'unknown';
 }
 function imagePathsForRow(r) {
   if (!r || r.category === 'misc') return [];
   const base = './assets/images/items', slug = imageSlugFromRawKey(r.rawKey), cat = String(r.category || 'misc'), paths = [];
-  if (cat === 'set-gear' && r.setName) paths.push(`${base}/set-gear/${slugifyText(r.setName)}/${slug}.png`);
-  paths.push(`${base}/${cat}/${slug}.png`);
-  paths.push(`${base}/${slug}.png`);
+  const variantSlug = r.variantSlug ? slug + '-' + r.variantSlug.replace(/[^a-z0-9]+/g, '-') : null;
+  for (const ext of IMAGE_EXTS) {
+    if (cat === 'set-gear' && r.setName) paths.push(`${base}/set-gear/${slugifyText(r.setName)}/${slug}.${ext}`);
+    if (variantSlug) paths.push(`${base}/${cat}/${variantSlug}.${ext}`);
+    paths.push(`${base}/${cat}/${slug}.${ext}`);
+    paths.push(`${base}/${slug}.${ext}`);
+  }
   return [...new Set(paths)];
 }
 function imgFallback(imgEl) {
-  try {
-    const list = (imgEl.dataset.fallbacks || '').split('|').filter(Boolean), idx = parseInt(imgEl.dataset.fallbackIndex || '0', 10);
-    if (idx >= list.length) { imgEl.onerror = null; imgEl.src = './assets/images/items/_placeholder.svg'; return; }
-    imgEl.dataset.fallbackIndex = String(idx + 1); imgEl.src = list[idx];
-  } catch (_e) { imgEl.onerror = null; imgEl.src = './assets/images/items/_placeholder.svg'; }
+    try {
+        const list = (imgEl.dataset.fallbacks || '').split('|').filter(Boolean), idx = parseInt(imgEl.dataset.fallbackIndex || '0', 10);
+        if (idx >= list.length) { imgEl.onerror = null; imgEl.src = './assets/images/items/_placeholder.svg'; return; }
+        imgEl.dataset.fallbackIndex = String(idx + 1); imgEl.src = list[idx];
+    } catch (_e) { imgEl.onerror = null; imgEl.src = './assets/images/items/_placeholder.svg'; }
 }
 let _lazyImgObserver = null, _lazyQueue = [], _lazyTicking = false;
 function _ensureLazyObserver() {
-  if (_lazyImgObserver) return _lazyImgObserver;
-  if (!('IntersectionObserver' in window)) return null;
-  _lazyImgObserver = new IntersectionObserver(entries => {
-    for (const e of entries) { if (!e.isIntersecting) continue; const img = e.target; _lazyImgObserver.unobserve(img); if (img.dataset.loaded === '1') continue; _lazyQueue.push(img); }
-    _lazyPumpQueue();
-  }, { root: null, rootMargin: '250px 0px', threshold: 0.01 });
-  return _lazyImgObserver;
+    if (_lazyImgObserver) return _lazyImgObserver;
+    if (!('IntersectionObserver' in window)) return null;
+    _lazyImgObserver = new IntersectionObserver(entries => {
+        for (const e of entries) { if (!e.isIntersecting) continue; const img = e.target; _lazyImgObserver.unobserve(img); if (img.dataset.loaded === '1') continue; _lazyQueue.push(img); }
+        _lazyPumpQueue();
+    }, { root: null, rootMargin: '250px 0px', threshold: 0.01 });
+    return _lazyImgObserver;
 }
 function _lazyPumpQueue() {
-  if (_lazyTicking) return; _lazyTicking = true;
-  requestAnimationFrame(() => {
-    _lazyTicking = false;
-    const batch = _lazyQueue.splice(0, 10); let hi = 0;
-    for (const img of batch) { _loadLazyImg(img, hi < 3 ? 'high' : 'low'); if (hi < 3) hi++; }
-    if (_lazyQueue.length) _lazyPumpQueue();
-  });
+    if (_lazyTicking) return; _lazyTicking = true;
+    requestAnimationFrame(() => {
+        _lazyTicking = false;
+        const batch = _lazyQueue.splice(0, 10); let hi = 0;
+        for (const img of batch) { _loadLazyImg(img, hi < 3 ? 'high' : 'low'); if (hi < 3) hi++; }
+        if (_lazyQueue.length) _lazyPumpQueue();
+    });
 }
 function _loadLazyImg(img, priority = 'low') {
-  if (!img || img.dataset.loaded === '1') return;
-  const src = img.dataset.src; if (!src) return;
-  img.dataset.loaded = '1'; try { img.setAttribute('fetchpriority', priority); } catch (_e) {}
-  img.decoding = 'async'; img.src = src;
+    if (!img || img.dataset.loaded === '1') return;
+    const src = img.dataset.src; if (!src) return;
+    img.dataset.loaded = '1'; try { img.setAttribute('fetchpriority', priority); } catch (_e) {}
+    img.decoding = 'async'; img.src = src;
 }
 function observeLazyImages(rootEl) {
-  const obs = _ensureLazyObserver(); if (!rootEl) return;
-  if (!obs) { rootEl.querySelectorAll('img[data-src]').forEach(img => _loadLazyImg(img, 'low')); return; }
-  rootEl.querySelectorAll('img[data-src]').forEach(img => { if (img.dataset.loaded === '1') return; obs.observe(img); });
+    const obs = _ensureLazyObserver(); if (!rootEl) return;
+    if (!obs) { rootEl.querySelectorAll('img[data-src]').forEach(img => _loadLazyImg(img, 'low')); return; }
+    rootEl.querySelectorAll('img[data-src]').forEach(img => { if (img.dataset.loaded === '1') return; obs.observe(img); });
 }
 function imageHTMLForRow(r, cls = '', opts = {}) {
-  const paths = imagePathsForRow(r); if (!paths.length) return '';
-  const eager = !!opts.eager, priority = opts.fetchPriority || 'low';
-  const first = paths[0], fb = [...paths.slice(1), './assets/images/items/_placeholder.svg'].join('|');
-  if (eager) return `<img loading="eager" fetchpriority="${esc(priority)}" decoding="async" class="${cls}" src="${esc(first)}" data-fallbacks="${esc(fb)}" data-fallback-index="0" alt="" onerror="imgFallback(this)" />`;
-  return `<img loading="lazy" fetchpriority="${esc(priority)}" decoding="async" class="${cls} lazy-img" src="./assets/images/items/_placeholder.svg" data-src="${esc(first)}" data-fallbacks="${esc(fb)}" data-fallback-index="0" data-loaded="0" alt="" onerror="imgFallback(this)" />`;
+    const paths = imagePathsForRow(r); if (!paths.length) return '';
+    const eager = !!opts.eager, priority = opts.fetchPriority || 'low';
+    const first = paths[0], fb = [...paths.slice(1), './assets/images/items/_placeholder.svg'].join('|');
+    if (eager) return `<img loading="eager" fetchpriority="${esc(priority)}" decoding="async" class="${cls}" src="${esc(first)}" data-fallbacks="${esc(fb)}" data-fallback-index="0" alt="" onerror="imgFallback(this)" />`;
+    return `<img loading="lazy" fetchpriority="${esc(priority)}" decoding="async" class="${cls} lazy-img" src="./assets/images/items/_placeholder.svg" data-src="${esc(first)}" data-fallbacks="${esc(fb)}" data-fallback-index="0" data-loaded="0" alt="" onerror="imgFallback(this)" />`;
 }
 
 // ── Card notes ──
@@ -445,8 +472,15 @@ function sampH(n) { const pct = maxSamples > 0 ? Math.min(100, Math.round(((n ||
 // e.g. 4,646,646 → 4,650,000 | 87,300 → 87,500 | 1,234 → 1,250
 function roundToCleanPrice(n) {
   if (!n || n <= 0) return 0;
-  const magnitude = Math.pow(10, Math.max(0, Math.floor(Math.log10(n)) - 1));
-  return Math.round(n / magnitude) * magnitude;
+  const digits = Math.floor(Math.log10(n));
+
+  let step;
+  if (n >= 1_000_000) step = 50_000; //  1M-10M → nearest 50k
+  else if (n >= 100_000)   step = 5_000;  // 100k-1M → nearest 5k
+  else if (n >= 10_000)    step = 500;    //  10k-100k → nearest 500
+  else                     step = 50;     //    <10k → nearest 50
+
+  return Math.round(n / step) * step;
 }
 function copyPrice(n, btn) {
   const rounded = roundToCleanPrice(Math.round(n || 0));

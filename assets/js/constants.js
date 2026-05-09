@@ -39,22 +39,47 @@ const SPAWNER_MOBS = new Set([
 ]);
 
 const RESOURCES = new Set([
-  'mithril core','mithril essence','essence fragment','essence fragments',
+  'mithril core','mithril essence','legendary essence','epic essence',
+  'rare essence','common essence','essence fragment','essence fragments',
   'echo shard','end crystal','heavy core','golden apple','enchanted golden apple',
   'beacon','wither skeleton skull','nether star',"bottle o' enchanting",
   'budding amethyst','heart of the sea','netherite scrap','netherite ingot',
   'ominous trial key','trial key','shulker shell','dragon egg','dragon head',
   'totem of undying','nautilus shell','prismarine shard','prismarine crystals',
   'blaze rod','blaze powder','ghast tear','magma cream','slimeball','spider eye',
-  'fermented spider eye','rabbit foot','rabbit hide',
+  'fermented spider eye','rabbit foot','rabbit hide','ancient debris','block of netherite',
+  'block of coal','block of raw copper','block of diamond','block of emerald','block of gold',
+  'block of iron','block of lapis lazuli','block of raw copper','block of raw gold',
+  'block of raw iron','block of redstone','block of copper','ink sac','glow ink sac',
 ]);
 
 const UTILITY = new Set([
-  'quest crystal','ore seed','spawner spinner','uranium nugget','tracking oil',
-  'hostile mystery egg', 'passive mystery egg','glass cutter','begrimed item','historical codex','liquid exp',
-  'blessing dust','mob catcher','essence','rename kit','repair oil',
-  'the grand scrambler','elytra','saddle','lead','name tag',
-  'mushroom','mystic mushroom',
+  'elite quest crystal','quest crystal','ore seed','spawner spinner','uranium nugget',
+  'tracking oil','block tracking oil','kill tracking oil','fish tracking oil',
+  'hostile mystery egg', 'passive mystery egg','glass cutter','begrimed item','historical codex',
+  'liquid exp', 'blessing dust','mob catcher','essence','rename kit','repair oil',
+  'the grand scrambler','elytra','saddle','lead','name tag','mystic mushroom',
+  'mining mushroom','woodcutting mushroom','hunting mushroom','farming mushroom',
+  'fishing mushroom','smelting mushroom','arcane mushroom','netherite upgrade','mace',
+  'sentry armor trim','vex armor trim','wild armor trim','coast armor trim','dune armor trim',
+  'wayfinder armor trim', 'raiser armor trim','shaper armor trim','host armor trim',
+  'ward armor trim','silence armor trim','tide armor trim', 'snout armor trim','rib armor trim',
+  'eye armor trim','spire armor trim','flow armor trim','bolt armor trim','dried ghast',
+  'coal ore seed','copper ore seed','iron ore seed','gold ore seed','lapis ore seed',
+  'redstone ore seed','diamond ore seed','emerald ore seed','field masoned banner pattern',
+  'bordure indented banner pattern','flower charge banner pattern','creeper charge banner pattern',
+  'skull charge banner pattern', 'thing banner pattern','globe banner pattern',
+  'snout banner pattern','flow banner pattern','guster banner pattern',
+]);
+
+const FISH = new Set([
+  'anthias', 'blue eel', 'blue grenadier', 'bream', 'bubblefish', 'catfish', 'chromis',
+  'coralfish','cod', 'fire eel', 'gastropod shell', 'gemfish', 'golden wahoo', 'green barb',
+  'greenfish', 'ice fish', 'jellyfish','pufferfish', 'purple firefish', 'rosy barb','salmon',
+  'shrimp', 'slimefish', 'starfish', 'stingray', 'sunfish', 'token','tropical fish', 'trout',
+  'tuna', 'battery', 'dirty sock', 'metal can', 'plastic bottle', 'rope', 'bucket of axolotl',
+  'bucket of cod', 'bucket of pufferfish','bucket of salmon','bucket of tadpole','bucket of tropical fish',
+  'bucket of sulfur cube',
 ]);
 
 const CAT_LABELS = {
@@ -62,7 +87,7 @@ const CAT_LABELS = {
   'spawner':'Spawner','spawn-egg':'Spawn Egg',
   'runestone':'Runestone','unique-relic':'Unique Relic',
   'resource':'Resource','utility':'Utility',
-  'music-disc':'Music Disc','misc':'Misc',
+  'music-disc':'Music Disc','fish':'Fish','misc':'Misc',
 };
 
 const CONF_ORDER = { high:0, good:1, fair:2, low:3, unreliable:4 };

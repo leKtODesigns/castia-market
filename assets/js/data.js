@@ -40,7 +40,7 @@ function titleCase(str) {
 function isBadSeller(seller) {
   if (!seller) return false;
   const sd = allSellers[String(seller).toLowerCase()];
-  return !!(sd && (sd.is_blacklisted || sd.is_flagged));
+  return !!(sd && (sd.is_blacklisted));
 }
 function getUnitPrice(l) {
   if (l == null) return 0;
@@ -83,7 +83,7 @@ function trendFromListings(listings) {
 }
 function sellerRatingInfo(seller) {
   const sd = allSellers[String(seller || '').toLowerCase()];
-  const isFlagged = !!(sd && (sd.is_blacklisted || sd.is_flagged));
+  const isFlagged = !!(sd && (sd.is_blacklisted));
   const label = isFlagged ? 'Flagged' : (sd?.accuracy_label || 'Neutral');
   return { sd, label, order: SELLER_ORDER[label] ?? SELLER_ORDER.Neutral, isFlagged, isBlacklisted: !!sd?.is_blacklisted };
 }
@@ -97,7 +97,7 @@ function parseKey(raw) {
   const kl = baseKey.toLowerCase();
   if (kl.startsWith('book:')) {
     // Collapse any extra whitespace after the colon (e.g. "book:  Swift Sneak" → "Book: Swift Sneak")
-    const bookName = baseKey.replace(/^book:\s*/i, '').replace(/\s+/g, ' ').trim();
+    const bookName = baseKey.replace(/^book:\s*/i, '').replace(/^[^\w(]+/, '').replace(/\s+/g, ' ').trim();
     return { displayName: 'Book: ' + titleCase(bookName), category: 'enchanted-book', tier: 0, setName: null, rawKey: raw };
   }
   for (const setName of MITHRIL_SETS) {
@@ -119,11 +119,11 @@ function parseKey(raw) {
     if (bracketMatch) {
       const base = titleCase(bracketMatch[1]), skill = (bracketMatch[2] || '').trim().toLowerCase();
       const tagClass = SKILL_TAG_CLASS[skill] || null;
-      return { displayName: base, category: 'unique-relic', tier: 0, setName: null, rawKey: raw, skillTag: tagClass ? { text: titleCase(skill), cls: tagClass } : null };
+      return { displayName: base, category: 'unique-relic', tier: 0, setName: null, rawKey: raw, skillTag: tagClass ? { text: titleCase(skill), cls: tagClass } : null, variantSlug: skill || null };
     }
     return { displayName: titleCase(baseKey), category: 'unique-relic', tier: 0, setName: null, rawKey: raw, skillTag: null };
   }
-  const klNoSuffix = kl.replace(/\s*\([\d.]+%\)\s*$/, '').trim();
+  const klNoSuffix = kl.replace(/\s*\([\d.]+%\)\s*$/, '').replace(/\s+(?:\d+|i{1,3}|iv|vi{0,3}|ix)$/i, '').trim();
   if (RUNESTONES.has(kl) || RUNESTONES.has(klNoSuffix))
     return { displayName: titleCase(baseKey), category: 'runestone', tier: 0, setName: null, rawKey: raw };
   if (kl.endsWith(' spawner'))
@@ -134,7 +134,9 @@ function parseKey(raw) {
     return { displayName: titleCase(baseKey), category: 'music-disc', tier: 0, setName: null, rawKey: raw };
   if (RESOURCES.has(kl))
     return { displayName: titleCase(baseKey), category: 'resource', tier: 0, setName: null, rawKey: raw };
-  if (UTILITY.has(kl))
+  if (FISH.has(kl.replace(/\s*★+$/, '')))
+    return { displayName: titleCase(baseKey), category: 'fish', tier: 0, setName: null, rawKey: raw };
+  if (UTILITY.has(kl) || UTILITY.has(klNoSuffix))
     return { displayName: titleCase(baseKey), category: 'utility', tier: 0, setName: null, rawKey: raw };
   return { displayName: titleCase(baseKey), category: 'misc', tier: 0, setName: null, rawKey: raw };
 }
@@ -194,7 +196,7 @@ async function fetchAll(silent) {
       off += 1000;
     }
     let sellerRows = [];
-    try { sellerRows = await sbGet('seller_data', '?select=seller,total_listings,valid_listings,avg_markup_percent,overpriced_ratio,accuracy_label,is_blacklisted,is_flagged'); }
+    try { sellerRows = await sbGet('seller_data', '?select=seller,total_listings,valid_listings,avg_markup_percent,overpriced_ratio,accuracy_label,is_blacklisted'); }
     catch (_e) { sellerRows = await sbGet('seller_data', '?select=seller,total_listings,valid_listings,avg_markup_percent,overpriced_ratio,accuracy_label,is_blacklisted'); }
     allPrices = priceRows; enriched = enrich(allPrices);
     const cacheApplied = applyPrismaticTierCache();
