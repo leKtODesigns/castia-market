@@ -138,6 +138,8 @@ function parseKey(raw) {
     return { displayName: titleCase(baseKey), category: 'fish', tier: 0, setName: null, rawKey: raw };
   if (UTILITY.has(kl) || UTILITY.has(klNoSuffix))
     return { displayName: titleCase(baseKey), category: 'utility', tier: 0, setName: null, rawKey: raw };
+  if (VANILLA_BLOCKS.has(kl))
+    return { displayName: titleCase(baseKey), category: 'vanilla', tier: 0, setName: null, rawKey: raw };
   return { displayName: titleCase(baseKey), category: 'misc', tier: 0, setName: null, rawKey: raw };
 }
 

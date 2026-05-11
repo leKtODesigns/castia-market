@@ -1911,6 +1911,12 @@
         '\u25a0 Can be combined with a Begrimed Item to receive a random relic.'
       ],
     },
+    'the grand scrambler':{
+      type:'desc',
+      lines:[
+        '\u25a0 The Grand Scrambler may be used to completely reroll the success rate of the given Runestone.'
+      ],
+    },
     'hostile mystery egg':{
       type:'desc',
       lines:[
@@ -1989,6 +1995,121 @@
       type:'desc',
       lines:[
         '\u25a0  When consumed, grants the player a random Mithril relic.'
+      ],
+    },
+    // Runestones
+    'collection':{
+      type:'desc',
+      lines:[
+        '\u25a0 Automatically puts items in your inventory.'
+      ],
+    },
+    'vein miner':{
+      type:'desc',
+      lines:[
+        '\u25a0 Mine up to 15 attached ores. (Mine ores while sneaking).'
+      ],
+    },
+    'treefeller':{
+      type:'desc',
+      lines:[
+        '\u25a0 Cuts down whole trees. (Harvest logs while sneaking).'
+      ],
+    },
+    'fire react':{
+      type:'desc',
+      lines:[
+        '\u25a0 Chance to light attacker on fire when you are damaged.'
+      ],
+    },
+    'obby breaker':{
+      type:'desc',
+      lines:[
+        '\u25a0 Breaks obsidian faster.'
+      ],
+    },
+    'deepfry':{
+      type:'desc',
+      lines:[
+        '\u25a0 Automatically cooks fish when caught.'
+      ],
+    },
+    'comb cutter':{
+      type:'desc',
+      lines:[
+        '\u25a0 Mines bee hives and nests instantly. Doubles the output of hives and nests.'
+      ],
+    },
+    'cat eyes':{
+      type:'desc',
+      lines:[
+        '\u25a0 Permanently gives Night Vision while worn.'
+      ],
+    },
+    'bait':{
+      type:'desc',
+      lines:[
+        '\u25a0 Chance to have double the fish drops when fishing.'
+      ],
+    },
+    'solar lure':{
+      type:'desc',
+      lines:[
+        '\u25a0 Increases the Lure effects during daytime.'
+      ],
+    },
+    'lunar lure':{
+      type:'desc',
+      lines:[
+        '\u25a0 Increases the Lure effects during nighttime.'
+      ],
+    },
+    'potent poison':{
+      type:'desc',
+      lines:[
+        '\u25a0 Chance to afflict enemy with poison.'
+      ],
+    },
+    'mint breath':{
+      type:'desc',
+      lines:[
+        '\u25a0 Grants immunity to Dragon\'s Breath.'
+      ],
+    },
+    'magma walker':{
+      type:'desc',
+      lines:[
+        '\u25a0 Ability to walk on Lava. (Only works in the nether)'
+      ],
+    },
+    'rubys fire':{
+      type:'desc',
+      lines:[
+        '\u25a0 Automatically smelts ores when mined.'
+      ],
+    },
+    'end veil':{
+      type:'desc',
+      lines:[
+        '\u25a0 No longer aggravates endermen when looking at them.'
+      ],
+    },
+    'sculk smite':{
+      type:'desc',
+      lines:[
+        '\u25a0 Deals more damage towards the Warden.'
+      ],
+    },
+    'dune walker':{
+      type:'desc',
+      lines:[
+        '\u25a0 Walks faster when on sand.'
+      ],
+    },
+    'decapitation':{
+      type:'desc',
+      lines:[
+        '\u25a0 Drops the enemy player\'s head upon their death.'
       ],
     },
     // Placeholder

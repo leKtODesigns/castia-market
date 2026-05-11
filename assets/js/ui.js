@@ -395,7 +395,7 @@ function getCardNoteForRow(r) {
   return notes[keyTier.replace(/\|t[123]$/i, '')] || null;
 }
 function cardExtraH(r) {
-  if (!r || (r.category !== 'set-gear' && r.category !== 'unique-relic')) return '';
+  if (!r) return '';
   const note = getCardNoteForRow(r); if (!note || !note.lines?.length) return '';
   const lines = note.lines.map(line => {
     const s = String(line || '');
