@@ -1,6 +1,22 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## [2026-05-11] - released
+
+### Added
+- Support for all vanilla Minecraft blocks and items (1.21.x)
+- New "Vanilla" category for vanilla items with dedicated styling
+- Descriptions for runestones (e.g., Vein Miner, Treefeller, Fire React)
+- Detailed tooltips for utility items (e.g., The Grand Scrambler)
+
+### Changed
+- Improved category badge styling and organization
+- Enhanced UI for better visual hierarchy and readability
+
+### Fixed
+- Updated .gitignore to exclude sprite-downloader/ folder
+- Removed unused fish image (trash-battery.zip)
+
 ## [2026-05-10] - released
 
 ### Added
