@@ -2,7 +2,7 @@
 :root{
   --bg:#0b0d12;--bg2:#11141b;--bg3:#181c26;--bg4:#1f2433;--bg5:#252a3a;
   --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);--border3:rgba(255,255,255,0.18);
-  --text:#e4e6ef;--text2:#858aa0;--text3:#4e5369;
+  --text:#e4e6ef;--text2:#9ca3af;--text3:#6b7280;
   --gold:#edb84a;--gold2:#c4922a;--gold3:#7a5516;--gold-bg:rgba(237,184,74,0.07);--gold-bg2:rgba(237,184,74,0.14);
   --green:#46d679;--green-bg:rgba(70,214,121,0.08);
   --red:#f06464;--red-bg:rgba(240,100,100,0.08);
@@ -12,7 +12,7 @@
   --orange:#f0a24b;--orange-bg:rgba(240,162,75,0.10);
   --r:10px;--r-sm:6px;--r-xs:4px;
   --panel-w:480px;
-  /* Mobile-specific */
+   /* Mobile-specific */
   --header-h:52px;
   --touch-target:44px;
 }
