@@ -1028,6 +1028,18 @@ function getCardNoteForRow(r) {
     const bracketKey = `${keyBase} [${variant}]`;
     if (notes[bracketKey]) return notes[bracketKey];
   }
+  const displayBase = String(r?.displayName || "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+  const skillTag = String(r?.skillTag?.text || "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+  if (displayBase && skillTag) {
+    const displayBracketKey = `${displayBase} [${skillTag}]`;
+    if (notes[displayBracketKey]) return notes[displayBracketKey];
+  }
   return notes[keyBase] || dynamicEnchantmentNote(r);
 }
 
