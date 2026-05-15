@@ -953,6 +953,13 @@ function noteKeyFromRawKey(rawKey) {
       .toLowerCase();
 }
 
+function noteVariantFromSlug(slug) {
+  const v = String(slug || "").toLowerCase().trim();
+  if (!v) return "";
+  const tail = v.split(/[|/:=]/).filter(Boolean).pop() || "";
+  return tail.replace(/[_-]+/g, " ").trim();
+}
+
 function enchantLevelToRoman(level) {
   const n = Math.max(0, Math.floor(Number(level) || 0));
   if (!n) return "";
@@ -1016,6 +1023,11 @@ function getCardNoteForRow(r) {
   const keyVariant = keyTier.replace(/\|v:[^|]+$/i, "");
   if (notes[keyVariant]) return notes[keyVariant];
   const keyBase = keyVariant.replace(/\|t[123]$/i, "");
+  const variant = noteVariantFromSlug(r?.variantSlug);
+  if (variant) {
+    const bracketKey = `${keyBase} [${variant}]`;
+    if (notes[bracketKey]) return notes[bracketKey];
+  }
   return notes[keyBase] || dynamicEnchantmentNote(r);
 }
 
