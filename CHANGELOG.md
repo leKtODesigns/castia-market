@@ -11,6 +11,7 @@ This project uses grouped public-update entries instead of dates. Small fixes ma
 - Normalize tier-suffixed runestone names for prepared card-note lookup.
 - Correct the Ruby's Fire runestone note key to match the canonical item name.
 - Preserve accented characters during image slugging and keep backend runestone categories from inheriting stale set-gear metadata.
+- Defensively route known runestones away from incorrect Set Gear aggregate labels.
 
 ## Public update 04
 

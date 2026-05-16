@@ -436,7 +436,12 @@ function enrich(rows) {
   return (rows || []).map((r) => {
     const parsed = parseKey(r.key);
     const backendCategory = normalizeBackendCategory(r.category);
-    const category = backendCategory || parsed.category;
+    // Known runestones are exact-name matches and should not inherit stale
+    // backend Set Gear labels from prefix collisions such as "Lunar Lure".
+    const category =
+      parsed.category === "runestone" && backendCategory === "set-gear"
+        ? "runestone"
+        : backendCategory || parsed.category;
     const workerVariantSlug = String(r.variant_key || r.variantKey || "")
       .trim()
       .toLowerCase();
