@@ -1016,13 +1016,35 @@ function enchantmentLabel(name) {
   return clean ? titleCase(clean) : "";
 }
 
+const SINGLE_LEVEL_ENCHANTMENTS = new Set([
+  "aqua_affinity",
+  "binding_curse",
+  "channeling",
+  "flame",
+  "infinity",
+  "mending",
+  "multishot",
+  "silk_touch",
+  "vanishing_curse",
+  "unbreakable",
+]);
+
+function enchantmentKey(name) {
+  return String(name || "")
+    .replace(/^minecraft:/i, "")
+    .trim()
+    .toLowerCase();
+}
+
 function dynamicEnchantmentNote(r) {
   const entries = Object.entries(r?.enchantments || {}).filter(
       ([name, level]) => enchantmentLabel(name) && Number(level) > 0,
   );
   if (!entries.length) return null;
   const lines = entries.map(([name, level]) => {
-    const roman = enchantLevelToRoman(level);
+    const roman = SINGLE_LEVEL_ENCHANTMENTS.has(enchantmentKey(name))
+      ? ""
+      : enchantLevelToRoman(level);
     return `■ ${enchantmentLabel(name)}${roman ? ` ${roman}` : ""}`;
   });
   return { type: "enchants", lines };
