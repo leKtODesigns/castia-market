@@ -6,12 +6,14 @@ This project uses grouped public-update entries instead of dates. Small fixes ma
 
 - Make backend category authoritative for market rows while keeping legacy frontend inference as a fallback.
 - Suppress roman numerals for single-level enchantments in UI note formatting.
-- Add dedicated Music Disc item images under the new backend category folder.
 - Normalize percentage-suffixed runestone names for prepared card-note lookup.
 - Normalize tier-suffixed runestone names for prepared card-note lookup.
 - Correct the Ruby's Fire runestone note key to match the canonical item name.
 - Preserve accented characters during image slugging and keep backend runestone categories from inheriting stale set-gear metadata.
 - Defensively route known runestones away from incorrect Set Gear aggregate labels.
+- Add legal, credits, and privacy pages plus a footer disclaimer across the site.
+- Add repository licensing guidance and a complete pending-review asset manifest.
+- Add a CastiaMC asset-permission request draft and classify the first server-specific asset groups for review.
 
 ## Public update 04
 

@@ -1357,6 +1357,32 @@ footer a {
     color: var(--gold);
   }
 }
+.site-footer {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+}
+.site-footer__meta,
+.site-footer__links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+.site-footer__disclaimer {
+  max-width: 760px;
+  margin: 0;
+  line-height: 1.65;
+}
+.site-footer__links a {
+  color: var(--text2);
+}
+.site-footer__links a + a::before {
+  content: "·";
+  margin-right: 0.65rem;
+  color: var(--text3);
+}
 
 /* ── RLS banner ── */
 .rlsb {
