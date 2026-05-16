@@ -8,6 +8,8 @@ This project uses grouped public-update entries instead of dates. Small fixes ma
 - Suppress roman numerals for single-level enchantments in UI note formatting.
 - Add dedicated Music Disc item images under the new backend category folder.
 - Normalize percentage-suffixed runestone names for prepared card-note lookup.
+- Normalize tier-suffixed runestone names for prepared card-note lookup.
+- Correct the Ruby's Fire runestone note key to match the canonical item name.
 
 ## Public update 04
 

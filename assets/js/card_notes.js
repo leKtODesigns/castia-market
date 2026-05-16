@@ -2888,7 +2888,7 @@
       type: "desc",
       lines: ["\u25a0 Ability to walk on Lava. (Only works in the nether)"],
     },
-    "rubys fire": {
+    "ruby's fire": {
       type: "desc",
       lines: ["\u25a0 Automatically smelts ores when mined."],
     },

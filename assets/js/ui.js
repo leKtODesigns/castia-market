@@ -950,6 +950,7 @@ function noteKeyFromRawKey(rawKey) {
   return String(rawKey || "")
       .trim()
       .replace(/\s*\([\d.]+%\)\s*$/i, "")
+      .replace(/\s+(?:\d+|i{1,3}|iv|vi{0,3}|ix)$/i, "")
       .replace(/\s+/g, " ")
       .toLowerCase();
 }
