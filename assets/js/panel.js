@@ -549,8 +549,11 @@ function buildPanelHTML(item, listings, meta = {}) {
         <button type="button" class="copt ${panelSort === "seller" ? "on" : ""}" data-act="panel-sort" data-sort="seller">Seller rating</button>
       </div>
     </div>
-    <button type="button" class="ctoggle ${panelIncludeFlagged ? "on" : ""}" id="panelFlagTog" data-act="panel-include-flagged" role="switch" aria-checked="${panelIncludeFlagged ? "true" : "false"}">
-      <span class="ctog" aria-hidden="true">Include Flagged</span>
+    <button type="button" class="ptog-switch ${panelIncludeFlagged ? "on" : ""}" id="panelFlagTog" data-act="panel-include-flagged" role="switch" aria-checked="${panelIncludeFlagged ? "true" : "false"}">
+      <span class="ptog-switch__label">Include Flagged</span>
+      <span class="ptog-switch__track" aria-hidden="true">
+        <span class="ptog-switch__thumb"></span>
+      </span>
     </button>
   </div>`;
 
