@@ -4,7 +4,7 @@ This project uses grouped public-update entries instead of dates. Small fixes ma
 
 ## Unreleased
 
-- Keep future site changes collected here until the next public update is published.
+- Make backend category authoritative for market rows while keeping legacy frontend inference as a fallback.
 
 ## Public update 04
 

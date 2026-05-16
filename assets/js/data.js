@@ -411,9 +411,30 @@ function parseKey(raw) {
  * @param {Object[]} rows - Array of raw data objects from the Castia Worker
  * @returns {Object[]} Enriched array with parsed properties added
  */
+function normalizeBackendCategory(category) {
+  const map = {
+    "Set Gear": "set-gear",
+    "Enchanted Book": "enchanted-book",
+    Spawner: "spawner",
+    "Spawn Egg": "spawn-egg",
+    Runestone: "runestone",
+    "Unique Relic": "unique-relic",
+    Resource: "resource",
+    Utility: "utility",
+    "Music Disc": "music-disc",
+    Fish: "fish",
+    Vanilla: "vanilla",
+    Misc: "misc",
+  };
+
+  const raw = String(category || "").trim();
+  return map[raw] || null;
+}
+
 function enrich(rows) {
   return (rows || []).map((r) => {
     const parsed = parseKey(r.key);
+    const backendCategory = normalizeBackendCategory(r.category);
     const workerVariantSlug = String(r.variant_key || r.variantKey || "")
       .trim()
       .toLowerCase();
@@ -425,6 +446,7 @@ function enrich(rows) {
       ...r,
       enchantments: parseEnchantments(r.enchantments),
       ...parsed,
+      category: backendCategory || parsed.category,
       variantSlug: parsed.variantSlug || workerVariantSlug || null,
       _dn_lc: dnLc,
       _rk_lc: rkLc,
@@ -531,6 +553,7 @@ function parseEnchantments(value) {
 function normalizePriceRows(workerPrices) {
   return Object.entries(workerPrices || {}).map(([key, row]) => ({
     key,
+    category: row?.category || null,
     variant_key: row?.variantKey || null,
     enchantments: parseEnchantments(row?.enchantments),
     median: row?.median ?? null,
