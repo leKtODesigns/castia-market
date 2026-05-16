@@ -960,6 +960,25 @@ function noteVariantFromSlug(slug) {
   return tail.replace(/[_-]+/g, " ").trim();
 }
 
+function extractSkillVariant(r) {
+  const fromTag = String(r?.skillTag?.text || "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+  if (fromTag) return fromTag;
+
+  const raw = String(r?.rawKey || "").toLowerCase();
+  const rawMatch = raw.match(/\[([^\]]+)\]/);
+  if (rawMatch && rawMatch[1]) return rawMatch[1].trim().replace(/\s+/g, " ");
+
+  const display = String(r?.displayName || "").toLowerCase();
+  const displayMatch = display.match(/\[([^\]]+)\]/);
+  if (displayMatch && displayMatch[1])
+    return displayMatch[1].trim().replace(/\s+/g, " ");
+
+  return noteVariantFromSlug(r?.variantSlug);
+}
+
 function enchantLevelToRoman(level) {
   const n = Math.max(0, Math.floor(Number(level) || 0));
   if (!n) return "";
@@ -1019,28 +1038,31 @@ function getCardNoteForRow(r) {
       raw = String(r?.rawKey || "").trim();
   if (!raw) return null;
   const keyTier = noteKeyFromRawKey(raw);
+  const keyNoVariant = keyTier.replace(/\|v:[^|]+$/i, "");
+  const keyBaseNoTier = keyNoVariant.replace(/\|t[123]$/i, "");
+  const skill = extractSkillVariant(r);
+
+  // Explicit handling for knowledge-cap variants to avoid any key-shape drift.
+  if (keyBaseNoTier.startsWith("knowledge cap") && skill) {
+    const explicit = `knowledge cap [${skill}]`;
+    if (notes[explicit]) return notes[explicit];
+  }
+
   if (notes[keyTier]) return notes[keyTier];
-  const keyVariant = keyTier.replace(/\|v:[^|]+$/i, "");
-  if (notes[keyVariant]) return notes[keyVariant];
-  const keyBase = keyVariant.replace(/\|t[123]$/i, "");
-  const variant = noteVariantFromSlug(r?.variantSlug);
-  if (variant) {
-    const bracketKey = `${keyBase} [${variant}]`;
+  if (notes[keyNoVariant]) return notes[keyNoVariant];
+  if (skill) {
+    const bracketKey = `${keyBaseNoTier} [${skill}]`;
     if (notes[bracketKey]) return notes[bracketKey];
   }
   const displayBase = String(r?.displayName || "")
     .trim()
     .replace(/\s+/g, " ")
     .toLowerCase();
-  const skillTag = String(r?.skillTag?.text || "")
-    .trim()
-    .replace(/\s+/g, " ")
-    .toLowerCase();
-  if (displayBase && skillTag) {
-    const displayBracketKey = `${displayBase} [${skillTag}]`;
+  if (displayBase && skill) {
+    const displayBracketKey = `${displayBase} [${skill}]`;
     if (notes[displayBracketKey]) return notes[displayBracketKey];
   }
-  return notes[keyBase] || dynamicEnchantmentNote(r);
+  return notes[keyBaseNoTier] || dynamicEnchantmentNote(r);
 }
 
 /**
