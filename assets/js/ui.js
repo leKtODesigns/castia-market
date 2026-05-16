@@ -949,6 +949,7 @@ function imageHTMLForRow(r, cls = "", opts = {}) {
 function noteKeyFromRawKey(rawKey) {
   return String(rawKey || "")
       .trim()
+      .replace(/\s*\([\d.]+%\)\s*$/i, "")
       .replace(/\s+/g, " ")
       .toLowerCase();
 }

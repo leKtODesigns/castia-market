@@ -7,6 +7,7 @@ This project uses grouped public-update entries instead of dates. Small fixes ma
 - Make backend category authoritative for market rows while keeping legacy frontend inference as a fallback.
 - Suppress roman numerals for single-level enchantments in UI note formatting.
 - Add dedicated Music Disc item images under the new backend category folder.
+- Normalize percentage-suffixed runestone names for prepared card-note lookup.
 
 ## Public update 04
 
