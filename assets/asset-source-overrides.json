@@ -1,0 +1,117 @@
+{
+  "folderDefaults": {
+    "enchanted-book": {
+      "source_type": "third-party-resource-pack",
+      "original_source_url": "https://github.com/carl-classic/Re-covered/tree/vanilla",
+      "author_or_uploader": "carl-classic",
+      "license_or_permission_basis": "CC BY-NC-ND 4.0",
+      "modified": "unknown",
+      "review_status": "license-review-needed"
+    },
+    "set-gear": {
+      "source_type": "castiamc-origin",
+      "license_or_permission_basis": "permission-pending",
+      "review_status": "permission-pending"
+    },
+    "runestone": {
+      "source_type": "castiamc-origin",
+      "license_or_permission_basis": "permission-pending",
+      "review_status": "permission-pending"
+    }
+  },
+  "files": {
+    "assets/images/items/unique-relic/mistle-toes.gif": {
+      "source_type": "minecraft-wiki",
+      "original_source_url": "https://minecraft.wiki/w/Golden_Boots#/media/File:Enchanted_Golden_Boots_(item).gif",
+      "license_or_permission_basis": "probable Mojang asset; Minecraft Usage Guidelines review needed",
+      "review_status": "source-recovered"
+    },
+    "assets/images/items/unique-relic/knowledge-cap.gif": {
+      "source_type": "minecraft-wiki",
+      "original_source_url": "https://minecraft.wiki/w/Iron_Helmet#/media/File:Enchanted_Iron_Helmet_(item).gif",
+      "license_or_permission_basis": "probable Mojang asset; Minecraft Usage Guidelines review needed",
+      "review_status": "source-recovered"
+    },
+    "assets/images/items/unique-relic/bamboozle.png": {
+      "source_type": "minecraft-wiki",
+      "original_source_url": "https://minecraft.wiki/w/Bamboo#/media/File:Bamboo_(item)_JE1_BE1.png",
+      "license_or_permission_basis": "probable Mojang asset; Minecraft Usage Guidelines review needed",
+      "review_status": "source-recovered"
+    },
+    "assets/images/items/unique-relic/posh-wellies.gif": {
+      "source_type": "minecraft-wiki",
+      "original_source_url": "https://minecraft.wiki/w/Leather_Boots#/media/File:Enchanted_Leather_Boots_(item).gif",
+      "license_or_permission_basis": "probable Mojang asset; Minecraft Usage Guidelines review needed",
+      "review_status": "source-recovered"
+    },
+    "assets/images/items/unique-relic/pet-rock.png": {
+      "source_type": "minecraft-wiki",
+      "original_source_url": "https://minecraft.wiki/w/Stone_Button#/media/File:Stone_Button_(item)_JE2.png",
+      "license_or_permission_basis": "probable Mojang asset; Minecraft Usage Guidelines review needed",
+      "review_status": "source-recovered"
+    },
+    "assets/images/items/fish/cod.png": {
+      "source_type": "minecraft-wiki",
+      "license_or_permission_basis": "probable Mojang asset; Minecraft Usage Guidelines review needed",
+      "review_status": "source-recovered"
+    },
+    "assets/images/items/fish/salmon.png": {
+      "source_type": "minecraft-wiki",
+      "license_or_permission_basis": "probable Mojang asset; source URL needed",
+      "review_status": "source-url-needed"
+    },
+    "assets/images/items/fish/pufferfish.png": {
+      "source_type": "minecraft-wiki",
+      "license_or_permission_basis": "probable Mojang asset; Minecraft Usage Guidelines review needed",
+      "review_status": "source-recovered"
+    },
+    "assets/images/items/fish/tropical-fish.png": {
+      "source_type": "minecraft-wiki",
+      "license_or_permission_basis": "probable Mojang asset; Minecraft Usage Guidelines review needed",
+      "review_status": "source-recovered"
+    },
+    "assets/images/items/fish/bucket-of-cod.png": {
+      "source_type": "minecraft-wiki",
+      "license_or_permission_basis": "probable Mojang asset; source URL needed",
+      "review_status": "source-url-needed"
+    },
+    "assets/images/items/fish/bucket-of-salmon.png": {
+      "source_type": "minecraft-wiki",
+      "license_or_permission_basis": "probable Mojang asset; source URL needed",
+      "review_status": "source-url-needed"
+    },
+    "assets/images/items/fish/bucket-of-pufferfish.png": {
+      "source_type": "minecraft-wiki",
+      "license_or_permission_basis": "probable Mojang asset; source URL needed",
+      "review_status": "source-url-needed"
+    },
+    "assets/images/items/fish/bucket-of-tropical-fish.png": {
+      "source_type": "minecraft-wiki",
+      "license_or_permission_basis": "probable Mojang asset; source URL needed",
+      "review_status": "source-url-needed"
+    },
+    "assets/images/items/fish/bucket-of-axolotl.png": {
+      "source_type": "minecraft-wiki",
+      "license_or_permission_basis": "probable Mojang asset; source URL needed",
+      "review_status": "source-url-needed"
+    },
+    "assets/images/items/fish/bucket-of-tadpole.png": {
+      "source_type": "minecraft-wiki",
+      "license_or_permission_basis": "probable Mojang asset; source URL needed",
+      "review_status": "source-url-needed"
+    }
+  },
+  "folderFileFallbacks": {
+    "fish": {
+      "source_type": "castiamc-origin",
+      "license_or_permission_basis": "permission-pending",
+      "review_status": "permission-pending"
+    },
+    "unique-relic": {
+      "source_type": "castiamc-origin",
+      "license_or_permission_basis": "permission-pending",
+      "review_status": "permission-pending"
+    }
+  }
+}
+

@@ -38,6 +38,8 @@ Prefer:
 
 If the project is ever monetized, re-review the full asset library first and treat any `NC`-licensed or permission-pending dependency as a blocker until resolved.
 
-## Permission requests
+## Manifest automation
 
-Use `docs/castiamc-asset-permission-request.md` as the working draft when requesting written permission for CastiaMC-origin server-specific artwork.
+Use `node scripts/update-asset-manifest.mjs --patterns="PATH_TO/discovered-patterns.json"` to recover probable source data from the existing Minecraft Wiki scraper output and local override rules.
+
+The updater intentionally uses statuses such as `source-recovered`, `license-review-needed`, and `permission-pending`. It does not mark rows as legally `cleared`; that final status still requires human confirmation of the actual file license or written permission.
