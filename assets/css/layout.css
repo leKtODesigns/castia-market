@@ -1852,8 +1852,8 @@ body.overlay-open #scrollTopBtn {
 /* ── Sellers Page Layout Improvements ── */
 @media (min-width: 769px) {
   .sellers-grid {
-    gap: 2rem;
-    padding: 0 2rem;
+    gap: 1.5rem;
+    padding: 0 1rem;
   }
 }
 

@@ -15,7 +15,7 @@ This project uses grouped public-update entries instead of dates. Small fixes ma
 - Add repository licensing guidance and a complete pending-review asset manifest.
 - Expand public credits with grouped attribution for Mojang, Castia-related, Re-covered, and Crafty asset sources.
 - Recover provenance for wiki-derived relics, mixed fish assets, and third-party enchanted-book art.
-- Restore centered Sellers controls and fixed-width desktop seller cards.
+- Restore centered Sellers controls and four-column fixed-width desktop seller cards.
 
 ## Public update 04
 
