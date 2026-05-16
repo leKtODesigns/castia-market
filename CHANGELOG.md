@@ -13,7 +13,8 @@ This project uses grouped public-update entries instead of dates. Small fixes ma
 - Defensively route known runestones away from incorrect Set Gear aggregate labels.
 - Add legal, credits, and privacy pages plus a footer disclaimer across the site.
 - Add repository licensing guidance and a complete pending-review asset manifest.
-- Add manifest automation and source overrides for wiki-derived relics, mixed fish assets, and third-party enchanted-book art.
+- Expand public credits with grouped attribution for Mojang, Castia-related, Re-covered, and Crafty asset sources.
+- Recover provenance for wiki-derived relics, mixed fish assets, and third-party enchanted-book art.
 
 ## Public update 04
 

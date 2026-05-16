@@ -7,7 +7,8 @@ The MIT license in `LICENSE` applies to original site code only. Third-party ass
 - Local item images remain hosted in this repository for reliability and auditability.
 - New copied assets should not be added unless their provenance is recorded at import time.
 - Minecraft Wiki-derived files must be reviewed file by file; do not assume every wiki-hosted file has the same license status.
-- CastiaMC-origin server-specific assets require written permission or later replacement if permission is not granted.
+- Castia-related server-specific assets remain tracked separately from Mojang assets; use the stated source license where clear, and otherwise keep a conservative review status until permission or reuse basis is confirmed.
+- Sitewide footer terms are useful evidence, but file-level license notes or rights-holder statements should take precedence when they are available.
 - Crafty avatar renders are external service responses, not bundled local assets.
 
 ## Asset manifest
@@ -26,7 +27,7 @@ Required columns:
 | `modified` | Whether the local copy was modified |
 | `review_status` | `pending`, `cleared`, `replace`, or another explicit review result |
 
-The current manifest is intentionally initialized with `pending-review` rows for the existing library. A row is not considered cleared until its source and reuse basis are documented.
+The manifest is a living review record. Source recovery and legal clearance are separate steps: a row can have a known source URL while still needing a final reuse-basis review.
 
 ## Future additions
 
@@ -37,9 +38,3 @@ Prefer:
 3. Assets used with explicit written permission.
 
 If the project is ever monetized, re-review the full asset library first and treat any `NC`-licensed or permission-pending dependency as a blocker until resolved.
-
-## Manifest automation
-
-Use `node scripts/update-asset-manifest.mjs --patterns="PATH_TO/discovered-patterns.json"` to recover probable source data from the existing Minecraft Wiki scraper output and local override rules.
-
-The updater intentionally uses statuses such as `source-recovered`, `license-review-needed`, and `permission-pending`. It does not mark rows as legally `cleared`; that final status still requires human confirmation of the actual file license or written permission.

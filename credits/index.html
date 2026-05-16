@@ -18,30 +18,56 @@
   <main class="legal-shell">
     <section class="legal-hero">
       <p class="legal-kicker">Credits</p>
-      <h1 class="legal-title">Asset attribution and review status</h1>
+      <h1 class="legal-title">Asset credits and provenance</h1>
       <p class="legal-lead">
-        Castia Market uses a mix of local item artwork and external avatar rendering. The local asset library is being reviewed file by file so each image can be tied to a documented source and reuse basis.
+        Castia Market uses Minecraft-related artwork, Castia-related artwork, one third-party resource-pack set, and external avatar rendering. This page gives the human-readable attribution summary; the detailed file inventory is linked below.
       </p>
     </section>
 
     <section class="legal-card">
-      <h2>Current source buckets</h2>
+      <h2>Minecraft and Mojang assets</h2>
+      <p>
+        Minecraft names, textures, screenshots, and official game assets remain owned by Mojang Studios and Microsoft. Castia Market is an unofficial fan-made site and uses Minecraft-related imagery only to identify in-game items for price-tracking purposes.
+      </p>
+      <p>
+        Source file pages for locally hosted Minecraft-related item images are recorded in the manifest where known. These assets are reviewed against the
+        <a href="https://www.minecraft.net/en-us/usage-guidelines">Minecraft Usage Guidelines</a>.
+      </p>
+    </section>
+
+    <section class="legal-card">
+      <h2>Castia-related assets</h2>
+      <p>
+        Some server-specific item artwork originates from CastiaMC or the Official CastiaMC Wiki. The CastiaMC Wiki footer states that page content is under
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0</a>
+        unless otherwise noted; individual asset status is still tracked conservatively in the manifest when a file page does not provide a separate clear license statement.
+      </p>
+      <p>
+        Castia Market is not approved by, endorsed by, or associated with CastiaMC.
+      </p>
+    </section>
+
+    <section class="legal-card">
+      <h2>Enchanted book textures</h2>
+      <p>
+        Enchanted book textures are from
+        <a href="https://github.com/carl-classic/Re-covered/tree/vanilla">Re-covered</a>
+        by <code>carl-classic</code>, which states a
+        <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>
+        license for the project artwork.
+      </p>
+    </section>
+
+    <section class="legal-card">
+      <h2>External services</h2>
       <table class="legal-table">
         <thead>
           <tr>
-            <th>Source bucket</th>
-            <th>Current handling</th>
+            <th>Service</th>
+            <th>Use</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Minecraft Wiki-derived files</td>
-            <td>Reviewed individually; local copies stay in place until their exact source and reuse basis are recorded.</td>
-          </tr>
-          <tr>
-            <td>CastiaMC-origin assets</td>
-            <td>Permission should be confirmed in writing or the assets should be replaced over time.</td>
-          </tr>
           <tr>
             <td>Crafty avatars</td>
             <td>Loaded from Crafty as external avatar renders rather than bundled local assets.</td>
@@ -55,7 +81,7 @@
       <p>
         The inventory is published as
         <a href="/castia-market/assets/asset-manifest.csv">assets/asset-manifest.csv</a>.
-        Existing rows currently marked <code>pending</code> are not yet considered cleared.
+        It records local file paths, known source pages, provenance buckets, and current review status for the asset library.
       </p>
     </section>
   </main>
