@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
 export default defineConfig({
-  base: "/castia-market-dev-build/",
+  base: "/castia-market/",
   plugins: [
     viteStaticCopy({
       targets: [

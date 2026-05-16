@@ -1,5 +1,5 @@
 (function () {
-  var BASE_PATH = "/castia-market-dev-build/";
+  var BASE_PATH = "/castia-market/";
   function toBasePath(assetPath) {
     return BASE_PATH + String(assetPath || "").replace(/^\/+/, "");
   }
