@@ -763,12 +763,13 @@ function imageSlugFromRawKey(rawKey) {
           .replace(/\s*\[[^\]]+\]\s*$/, "")
           .replace(/\s*\([\d.]+%\)\s*$/, "")
           .trim()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
           .toLowerCase()
           .replace(/&/g, "and")
           .replace(/['"]/g, "")
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/^-+|-+$/g, "")
-          .replace(/-(?:\d+|i{1,3}|iv|vi{0,3}|ix)$/, "")
           .slice(0, 120) || "unknown"
   );
 }
@@ -782,6 +783,8 @@ function slugifyText(txt) {
   return (
       String(txt || "")
           .trim()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
           .toLowerCase()
           .replace(/&/g, "and")
           .replace(/['"]/g, "")
@@ -799,7 +802,11 @@ function slugifyText(txt) {
 function imagePathsForRow(r) {
   if (!r || r.category === "misc") return [];
   const base = "./assets/images/items",
-      slug = imageSlugFromRawKey(r.rawKey),
+      baseSlug = imageSlugFromRawKey(r.rawKey),
+      slug =
+        r.category === "runestone"
+          ? baseSlug.replace(/-(?:\d+|i{1,3}|iv|vi{0,3}|ix)$/, "")
+          : baseSlug,
       cat = String(r.category || "misc"),
       paths = [];
   const variantSlug = r.variantSlug

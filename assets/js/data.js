@@ -217,6 +217,10 @@ function parseKey(raw) {
     baseKey = baseKey.slice(0, baseKey.lastIndexOf("|t")).trim();
   }
   const kl = baseKey.toLowerCase();
+  const klNoSuffix = kl
+    .replace(/\s*\([\d.]+%\)\s*$/, "")
+    .replace(/\s+(?:\d+|i{1,3}|iv|vi{0,3}|ix)$/i, "")
+    .trim();
 
   // Handle book items specially - they have unique formatting and categorization
   if (kl.startsWith("book:")) {
@@ -235,6 +239,18 @@ function parseKey(raw) {
       variantSlug,
     };
   }
+
+  // Exact runestone matches win before set-name inference so names like "Lunar Lure"
+  // cannot be mistaken for the Lunar gear family.
+  if (RUNESTONES.has(kl) || RUNESTONES.has(klNoSuffix))
+    return {
+      displayName: titleCase(baseKey),
+      category: "runestone",
+      tier: 0,
+      setName: null,
+      rawKey: raw,
+      variantSlug,
+    };
 
   // Check for Mithril set items (armor, tools, etc. from specific sets like Prismatic, Daydream, etc.)
   for (const setName of MITHRIL_SETS) {
@@ -304,21 +320,6 @@ function parseKey(raw) {
       variantSlug,
     };
   }
-
-  // Handle runestones (like "ruby's fire", "end veil")
-  const klNoSuffix = kl
-    .replace(/\s*\([\d.]+%\)\s*$/, "")
-    .replace(/\s+(?:\d+|i{1,3}|iv|vi{0,3}|ix)$/i, "")
-    .trim();
-  if (RUNESTONES.has(kl) || RUNESTONES.has(klNoSuffix))
-    return {
-      displayName: titleCase(baseKey),
-      category: "runestone",
-      tier: 0,
-      setName: null,
-      rawKey: raw,
-      variantSlug,
-    };
 
   // Handle spawner and spawn egg items
   if (kl.endsWith(" spawner"))
@@ -435,6 +436,7 @@ function enrich(rows) {
   return (rows || []).map((r) => {
     const parsed = parseKey(r.key);
     const backendCategory = normalizeBackendCategory(r.category);
+    const category = backendCategory || parsed.category;
     const workerVariantSlug = String(r.variant_key || r.variantKey || "")
       .trim()
       .toLowerCase();
@@ -446,7 +448,8 @@ function enrich(rows) {
       ...r,
       enchantments: parseEnchantments(r.enchantments),
       ...parsed,
-      category: backendCategory || parsed.category,
+      category,
+      setName: category === "set-gear" ? parsed.setName : null,
       variantSlug: parsed.variantSlug || workerVariantSlug || null,
       _dn_lc: dnLc,
       _rk_lc: rkLc,
