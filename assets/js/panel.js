@@ -143,7 +143,7 @@ async function openPanel(key) {
   setHashItemKey(key);
   scheduleSaveUIState();
   markActiveSelection();
-  const item = enriched.find((r) => r.rawKey === key);
+  const item = findDisplayRowByKey(key);
   if (!item) {
     closePanel();
     return;
@@ -197,7 +197,7 @@ async function openPanel(key) {
         { duration: 160, easing: "cubic-bezier(.2,.8,.2,1)" },
       );
   }
-  const listingsRaw = await fetchListings(key);
+  const listingsRaw = hasMarketHistory(item) ? await fetchListings(key) : [];
   if (activeKey !== key) return;
   const listingsClean = listingsRaw.filter((l) => !isBadSeller(l.seller));
   const removed = listingsRaw.length - listingsClean.length;
@@ -458,6 +458,7 @@ function buildPanelHTML(item, listings, meta = {}) {
   const pd = item,
     removed = meta.removed || 0,
     samplesFromListings = meta.samplesFromListings || 0;
+  const hasHistory = hasMarketHistory(pd);
   // Use database samples if available, otherwise use live listing samples
   const nTotal = pd.samples || 0,
     n = nTotal > 0 ? nTotal : samplesFromListings,
@@ -495,7 +496,8 @@ function buildPanelHTML(item, listings, meta = {}) {
   let html = "";
 
   // Price hero section with median price and IQR visualization
-  html += `<div class="price-hero">
+  html += hasHistory
+    ? `<div class="price-hero">
     <div class="ph-label">Median Unit Price</div>
     <div class="ph-head">
       <div class="ph-median">${fmt(median)}</div>
@@ -517,10 +519,16 @@ function buildPanelHTML(item, listings, meta = {}) {
       <div class="ph-range-item"><div class="ph-rl">${n >= 10 ? "IQR High" : "Est. High"}</div><div class="ph-rv">${fmt(displayHigh)}</div></div>
       <div class="ph-range-item"><div class="ph-rl">Spread</div><div class="ph-rv">${fmt(iqrSpan)}</div></div>
     </div>
-  </div>`;
+  </div>`
+    : `<div class="price-hero price-hero--empty">
+      <div class="ph-label">Market History</div>
+      <div class="ph-empty">No market history yet</div>
+      <div class="ph-empty-sub">This item can still be inspected and compared, but there are no tracked listings to estimate a price range.</div>
+    </div>`;
 
   // Meta pills row 1: Confidence, Trend, Samples, Tier, Last seen
-  html += `<div class="meta-pills">
+  if (hasHistory)
+    html += `<div class="meta-pills">
     <div class="mpill"><span class="mplabel">Confidence</span> <span class="conf-b conf-inline ${confCls(pd.confidence)}">■ ${pd.confidence || "—"}</span></div>
     <div class="mpill"><span class="mplabel">Trend</span> ${trendH(pd.trend)}</div>
     <div class="mpill"><span class="mplabel">Samples</span> ${pd.samples?.toLocaleString() || "—"}</div>
@@ -533,6 +541,8 @@ function buildPanelHTML(item, listings, meta = {}) {
     <button type="button" class="mpill mpill-btn ${isFav(pd.rawKey) ? "on" : ""}" data-act="fav" data-key="${esc(pd.rawKey)}" title="Toggle favorite" aria-label="Toggle favorite" aria-pressed="${isFav(pd.rawKey) ? "true" : "false"}" id="panelFavBtn">★ Favorite</button>
     <button type="button" class="mpill mpill-btn ${compareKeys.includes(pd.rawKey) ? "on" : ""}" data-act="cmp" data-key="${esc(pd.rawKey)}" title="Toggle compare" aria-label="Toggle compare" aria-pressed="${compareKeys.includes(pd.rawKey) ? "true" : "false"}" id="panelCmpBtn">⇄ Compare</button>
   </div>`;
+
+  if (!hasHistory) return html;
 
   // Recent listings section with sortable header and controls
   html += `<div class="psec"><div class="psec-title">Listings</div>`;

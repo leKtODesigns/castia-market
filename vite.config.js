@@ -24,6 +24,7 @@ export default defineConfig({
         legal: "legal/index.html",
         credits: "credits/index.html",
         privacy: "privacy/index.html",
+        about: "about/index.html",
       },
     },
   },

@@ -1401,6 +1401,21 @@ td {
   margin-bottom: 6px;
   font-family: "Space Mono", monospace;
 }
+.price-hero--empty {
+  display: grid;
+  gap: 0.45rem;
+}
+.ph-empty {
+  color: var(--gold);
+  font-family: "Space Mono", monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.ph-empty-sub {
+  max-width: 34rem;
+  color: var(--text3);
+  line-height: 1.5;
+}
 .ph-head {
   display: flex;
   align-items: center;

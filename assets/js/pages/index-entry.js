@@ -32,6 +32,12 @@
         return window.scrollTo({ top: 0, behavior: "smooth" });
       if (action === "close-compare") return window.closeCompare?.();
       if (action === "clear-compare") return window.clearCompare?.();
+      if (action === "stat-total-items") return window.activateTotalItemsStat?.();
+      if (action === "stat-categories") return window.activateCategoriesStat?.();
+      if (action === "stat-highest-price")
+        return window.activateHighestPriceStat?.(target);
+      if (action === "toggle-market-overview")
+        return window.toggleMarketOverview?.(target);
     });
 
     document.addEventListener("input", function (event) {
